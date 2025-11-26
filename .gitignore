@@ -1,3 +1,4 @@
-*
-!public/
-!public/**
+# Ignore Visual Studio files
+.vs/
+node_modules/
+dist/
