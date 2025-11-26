@@ -1,14 +1,3 @@
-# Dependencies
-/node_modules
-/dist
-/build
-
-# Visual Studio / IDE Files
-.vs/                 
-*.vsix
-*.suo
-*.user
-
-# Environment variables
-.env
-.env.local
+*
+!public/
+!public/**
