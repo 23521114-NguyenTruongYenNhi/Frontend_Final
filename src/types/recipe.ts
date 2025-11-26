@@ -1,5 +1,5 @@
 ﻿export interface Recipe {
-    id: string; // formerly _id
+    _id: string;
     title: string;
     image: string;
     cuisine: string;
@@ -15,9 +15,9 @@
         fat: number;
         carbs: number;
     };
-    tags: string[]; // dietary and other tags
-    authorId?: string;
     author?: string;
+    authorId?: string;
+    tags: string[];
     isVegetarian?: boolean;
     isVegan?: boolean;
     isGlutenFree?: boolean;

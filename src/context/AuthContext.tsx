@@ -103,6 +103,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    // Logout Function (Clears session data)
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem('mystere-meal-user');
+        // Force redirect to home page after logout
+        window.location.href = '/';
     };
 
     return (
