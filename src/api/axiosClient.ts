@@ -4,9 +4,11 @@ import axios from 'axios';
 
 // Determine the Base URL: Use environment variable for production/deployment, 
 // defaulting to local development port 5000.
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Create the Axios instance
+const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+
+const API_BASE_URL = `${baseUrl}/api`; 
+
 const axiosClient = axios.create({
     baseURL: API_BASE_URL,
     headers: {
