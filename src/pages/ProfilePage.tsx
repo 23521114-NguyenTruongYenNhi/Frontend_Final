@@ -186,8 +186,8 @@ export const ProfilePage: React.FC = () => {
                         <button
                             onClick={() => setActiveTab('favorites')}
                             className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${activeTab === 'favorites'
-                                    ? 'bg-orange-500 text-white shadow-md'
-                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                                ? 'bg-orange-500 text-white shadow-md'
+                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
                                 }`}
                         >
                             <Heart className={`w-4 h-4 ${activeTab === 'favorites' ? 'fill-current' : ''}`} />
@@ -196,8 +196,8 @@ export const ProfilePage: React.FC = () => {
                         <button
                             onClick={() => setActiveTab('created')}
                             className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${activeTab === 'created'
-                                    ? 'bg-orange-500 text-white shadow-md'
-                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                                ? 'bg-orange-500 text-white shadow-md'
+                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
                                 }`}
                         >
                             <BookOpen className="w-4 h-4" />
@@ -208,8 +208,76 @@ export const ProfilePage: React.FC = () => {
 
                 {/* --- Content Area --- */}
                 <div className="animate-fade-in-up">
-                    {/* Favorites Tab */}
+
+                    {/* 1. TAB FAVORITES */}
                     {activeTab === 'favorites' && (
                         <div>
                             {favoriteRecipes.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {favoriteRecipes.map((recipe) => (
+                                        <RecipeCard
+                                            key={recipe._id || recipe.id}
+                                            recipe={recipe}
+                                            onClick={() => handleRecipeClick(recipe._id || recipe.id)}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+                                    <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Heart className="w-8 h-8 text-orange-300" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-2">No favorites yet</h3>
+                                    <p className="text-gray-500 max-w-xs mx-auto mb-6">
+                                        Start exploring delicious recipes and save your favorites here!
+                                    </p>
+                                    <Link
+                                        to="/"
+                                        className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors font-medium"
+                                    >
+                                        <BookOpen className="w-4 h-4" />
+                                        Explore Recipes
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* 2. TAB CREATED RECIPES */}
+                    {activeTab === 'created' && (
+                        <div>
+                            {createdRecipes.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {createdRecipes.map((recipe) => (
+                                        <RecipeCard
+                                            key={recipe._id || recipe.id}
+                                            recipe={recipe}
+                                            onClick={() => handleRecipeClick(recipe._id || recipe.id)}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+                                    <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <ChefHat className="w-8 h-8 text-blue-300" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-2">No recipes created</h3>
+                                    <p className="text-gray-500 max-w-xs mx-auto mb-6">
+                                        Share your culinary masterpieces with the community.
+                                    </p>
+                                    <Link
+                                        to="/create-recipe"
+                                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                        Create First Recipe
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </main>
+        </div>
+    );
+};

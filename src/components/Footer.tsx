@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChefHat, Mail, Heart } from 'lucide-react';
+import { ChefHat, Mail } from 'lucide-react';
 
 export const Footer: React.FC = () => {
     const currentYear = new Date().getFullYear();
@@ -15,15 +15,10 @@ export const Footer: React.FC = () => {
                             <ChefHat className="w-8 h-8 text-orange-500" />
                             <h3 className="text-2xl font-bold">Mystère Meal</h3>
                         </div>
-                        <p className="text-gray-400 mb-4">
+                        <p className="text-gray-400">
                             Discover delicious recipes based on ingredients you have.
                             Share your culinary creations and explore a world of flavors.
                         </p>
-                        <div className="flex items-center gap-2 text-gray-400">
-                            <span>Made with</span>
-                            <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-                            <span>for food lovers</span>
-                        </div>
                     </div>
 
                     {/* Quick Links */}

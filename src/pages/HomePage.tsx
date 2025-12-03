@@ -11,7 +11,7 @@ import { Footer } from '../components/Footer';
 import { Recipe, RecipeFilters } from '../types/recipe';
 import { searchRecipes } from '../data/mockRecipes';
 import { recipeAPI } from '../api/client';
-import { ChefHat, LogOut, User, Info, Mail, PlusCircle, Search, Filter, Bookmark } from 'lucide-react';
+import { ChefHat, LogOut, User, Info, Mail, PlusCircle, Search, Filter, Bookmark, ShoppingBag } from 'lucide-react';
 import { Logo } from '../components/Logo';
 
 const STORAGE_KEY = 'mystere-meal-ingredients';
@@ -137,6 +137,13 @@ export const HomePage: React.FC = () => {
                             {/* User Menu */}
                             {user && (
                                 <>
+                                    <Link
+                                        to="/shopping-list"
+                                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-orange-600 transition-colors font-medium"
+                                    >
+                                        <ShoppingBag className="w-4 h-4" />
+                                        Shopping List
+                                    </Link>
                                     <span className="text-sm text-gray-600">Hello, <strong>{user.name}</strong></span>
                                     <Link
                                         to="/profile"
