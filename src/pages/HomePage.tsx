@@ -172,13 +172,13 @@ export const HomePage: React.FC = () => {
 
             {/* Hero Section */}
             <div className="relative h-[calc(100vh-80px)] w-full overflow-hidden">
-                <img 
-                    src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?q=80&w=1172&auto=format&fit=crop" 
-                    alt="Fresh Ingredients" 
+                <img
+                    src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?q=80&w=1172&auto=format&fit=crop"
+                    alt="Fresh Ingredients"
                     className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/50" />
-                
+
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4 pb-20">
                     <span className="bg-[#FFB800] text-gray-900 px-6 py-2 rounded-full font-bold mb-6 text-sm md:text-base uppercase tracking-wide shadow-lg">
                         Smart Kitchen Companion
@@ -192,7 +192,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center z-20">
-                    <button 
+                    <button
                         onClick={scrollToSearch}
                         className="group flex flex-col items-center gap-2 text-white hover:text-orange-300 transition-colors animate-bounce cursor-pointer"
                     >
@@ -203,14 +203,14 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4"> 
-                
+            <main className="container mx-auto px-4">
+
                 {/* Search Section */}
-                <div 
-                    ref={searchSectionRef} 
+                <div
+                    ref={searchSectionRef}
                     className="scroll-mt-20 min-h-[calc(100vh-80px)] flex flex-col pt-16 pb-10"
-                > 
-                    <div className="text-center mb-6"> 
+                >
+                    <div className="text-center mb-6">
                         <h2 className="text-3xl md:text-4xl font-bold font-sans text-gray-900 mb-3 pt-2">
                             What Ingredients Do You Have?
                         </h2>
@@ -225,7 +225,7 @@ export const HomePage: React.FC = () => {
                     />
 
                     {ingredients.length > 0 && (
-                        <div className="mt-4 text-center"> 
+                        <div className="mt-4 text-center">
                             <button
                                 onClick={handleSearch}
                                 disabled={isSearching}
@@ -258,11 +258,9 @@ export const HomePage: React.FC = () => {
                     )}
 
                     {!hasSearched && ingredients.length === 0 && (
-                        <div className="text-center py-0 mt-8"> 
-                            {/* FIX: Thu nhỏ khung lại: max-w-4xl */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                                {/* FIX: Giảm padding (p-5), kích thước icon (w-12, w-6), chữ (text-lg, text-sm) */}
-                                <div className="aspect-square p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
+                        <div className="text-center py-0 mt-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+                                <div className="aspect-square p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
                                     <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
                                         <ChefHat className="w-6 h-6 text-orange-500" />
                                     </div>
@@ -271,7 +269,7 @@ export const HomePage: React.FC = () => {
                                         Enter what you have, show what you can make. No food waste!
                                     </p>
                                 </div>
-                                <div className="aspect-square p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
+                                <div className="aspect-square p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
                                     <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
                                         <Filter className="w-6 h-6 text-orange-500" />
                                     </div>
@@ -280,7 +278,7 @@ export const HomePage: React.FC = () => {
                                         Vegetarian, Vegan, or Gluten-free? We cover every lifestyle.
                                     </p>
                                 </div>
-                                <div className="aspect-square p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
+                                <div className="aspect-square p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
                                     <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
                                         <PlusCircle className="w-6 h-6 text-orange-500" />
                                     </div>
@@ -295,13 +293,14 @@ export const HomePage: React.FC = () => {
                 </div>
             </main>
 
-            {/* About Section - Giữ nguyên logic */}
+            {/* About Section */}
             <div id="about" className="scroll-mt-20 flex flex-col bg-white pt-0 pb-8">
                 <AboutSection />
             </div>
 
-            {/* Contact Section - Giữ nguyên logic */}
-            <div id="contact" className="scroll-mt-20 min-h-[80vh] flex flex-col justify-center bg-white py-24">
+            {/* Contact Section */}
+            {/* FIX: Điều chỉnh lại chiều cao về chuẩn min-h-[calc(100vh-80px)] và giảm padding py-12 để cân đối giữa trang */}
+            <div id="contact" className="scroll-mt-20 min-h-[calc(100vh-80px)] flex flex-col justify-center bg-white py-12">
                 <ContactSection />
             </div>
 
