@@ -2,34 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Font Configuration */
+/* Global Font Configuration */
 @layer base {
-    body {
+    /* 1. Default Font for Body Text */
+    html, body {
         font-family: 'Poppins', sans-serif;
+        color: #374151; /* Dark Gray */
     }
 
+    /* 2. Font for Headings (h1 to h6) */
+    /* Changed to Poppins (Bold) to match the reference image style */
     h1, h2, h3, h4, h5, h6 {
-        font-family: 'Quicksand', sans-serif;
-        font-weight: 700;
-    }
-
-    .font-logo {
-        font-family: 'Satisfy', cursive;
-    }
-
-    .font-heading {
-        font-family: 'Playfair Display', serif;
-    }
-
-    .font-body {
         font-family: 'Poppins', sans-serif;
+        font-weight: 700; /* Bold weight like the "Find your interesting trip" text */
+        line-height: 1.2; /* Tighter line height for better heading appearance */
     }
+}
 
-    .font-rounded {
-        font-family: 'Quicksand', sans-serif;
-    }
+/* Utility Classes */
 
-    .font-handwritten {
-        font-family: 'Satisfy', cursive;
-    }
+/* Logo font */
+.font-logo {
+    font-family: 'Satisfy', cursive;
+}
+
+/* Use this class if you want text to look extra rounded */
+.font-rounded {
+    font-family: 'Quicksand', sans-serif;
 }
