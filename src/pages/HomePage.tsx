@@ -109,7 +109,7 @@ export const HomePage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-            {/* Header - Fixed Height 80px */}
+            {/* Header */}
             <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 h-[80px]">
                 <div className="container mx-auto px-4 h-full flex items-center justify-between">
                     <Link to="/" className="flex items-center">
@@ -208,9 +208,8 @@ export const HomePage: React.FC = () => {
                 {/* Search Section */}
                 <div 
                     ref={searchSectionRef} 
-                    // FIX: Bỏ 'justify-center'. Dùng pt-12 để cố định vị trí bắt đầu.
-                    // min-h đảm bảo fit trang ban đầu. Khi content dài, nó sẽ tự dãn ra.
-                    className="scroll-mt-20 min-h-[calc(100vh-80px)] flex flex-col pt-12 pb-8"
+                    // FIX: Giữ pb-10 làm vùng đệm an toàn để tránh bị lấn trang khi nội dung mở rộng
+                    className="scroll-mt-20 flex flex-col justify-center pt-12 pb-10"
                 > 
                     <div className="text-center mb-6"> 
                         <h2 className="text-3xl md:text-4xl font-bold font-sans text-gray-900 mb-3 pt-2">
@@ -260,32 +259,34 @@ export const HomePage: React.FC = () => {
                     )}
 
                     {!hasSearched && ingredients.length === 0 && (
-                        <div className="text-center py-4"> 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                                <div className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                        <ChefHat className="w-6 h-6 text-orange-500" />
+                        <div className="text-center py-0"> 
+                            {/* FIX: Tăng max-w lên w-full để chiếm trọn chiều rộng */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mx-auto">
+                                {/* FIX: Tăng padding p-10, icon w-20, chữ to hơn */}
+                                <div className="p-10 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                    <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-5">
+                                        <ChefHat className="w-10 h-10 text-orange-500" />
                                     </div>
-                                    <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Smart Search</h4>
-                                    <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                    <h4 className="font-sans font-bold text-2xl text-gray-800 mb-3">Smart Search</h4>
+                                    <p className="text-lg text-gray-600 leading-relaxed px-2">
                                         Enter what you have, show what you can make. No food waste!
                                     </p>
                                 </div>
-                                <div className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                        <Filter className="w-6 h-6 text-orange-500" />
+                                <div className="p-10 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                    <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-5">
+                                        <Filter className="w-10 h-10 text-orange-500" />
                                     </div>
-                                    <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Dietary Friendly</h4>
-                                    <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                    <h4 className="font-sans font-bold text-2xl text-gray-800 mb-3">Dietary Friendly</h4>
+                                    <p className="text-lg text-gray-600 leading-relaxed px-2">
                                         Vegetarian, Vegan, or Gluten-free? We cover every lifestyle.
                                     </p>
                                 </div>
-                                <div className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                        <PlusCircle className="w-6 h-6 text-orange-500" />
+                                <div className="p-10 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                    <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-5">
+                                        <PlusCircle className="w-10 h-10 text-orange-500" />
                                     </div>
-                                    <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Community</h4>
-                                    <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                    <h4 className="font-sans font-bold text-2xl text-gray-800 mb-3">Community</h4>
+                                    <p className="text-lg text-gray-600 leading-relaxed px-2">
                                         Discover and share secret recipes with other home cooks.
                                     </p>
                                 </div>
@@ -296,7 +297,6 @@ export const HomePage: React.FC = () => {
             </main>
 
             {/* About Section */}
-            {/* FIX: Giữ pt-0 để nằm sát phần trên */}
             <div id="about" className="scroll-mt-20 flex flex-col bg-white pt-0 pb-12">
                 <AboutSection />
             </div>
