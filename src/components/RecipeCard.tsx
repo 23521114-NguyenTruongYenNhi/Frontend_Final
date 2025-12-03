@@ -1,313 +1,125 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+﻿// File: src/components/RecipeCard.tsx
+import React, { useState, useEffect } from 'react';
+import { Recipe } from '../types/recipe';
+import { Clock, Star, ChefHat, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { SearchBar } from '../components/SearchBar';
-import { TagList } from '../components/TagList';
-import { FiltersPanel } from '../components/FiltersPanel';
-import { ResultsGrid } from '../components/ResultsGrid';
-import { AboutSection } from '../components/AboutSection';
-import { ContactSection } from '../components/ContactSection';
-import { Footer } from '../components/Footer';
-import { Recipe, RecipeFilters } from '../types/recipe';
-import { searchRecipes } from '../data/mockRecipes';
-import { recipeAPI } from '../api/client';
-import { ChefHat, LogOut, User, ShoppingBag, PlusCircle, Filter, ChevronDown } from 'lucide-react';
-import { Logo } from '../components/Logo';
+import { userAPI } from '../api/client';
 
-const STORAGE_KEY = 'mystere-meal-ingredients';
+interface RecipeCardProps {
+    recipe: Recipe;
+    onClick: () => void;
+    initialLiked?: boolean;
+    showStatus?: boolean; // NEW: Prop to control status visibility
+}
 
-export const HomePage: React.FC = () => {
-    const navigate = useNavigate();
-    const { user, logout } = useAuth();
-    const [ingredients, setIngredients] = useState<string[]>([]);
-    const [filters, setFilters] = useState<RecipeFilters>({});
-    const [recipes, setRecipes] = useState<Recipe[]>([]);
-    const [hasSearched, setHasSearched] = useState(false);
-    const [isSearching, setIsSearching] = useState(false);
+export const RecipeCard: React.FC<RecipeCardProps> = ({
+    recipe,
+    onClick,
+    initialLiked = false,
+    showStatus = false // Default is hidden
+}) => {
+    const { user } = useAuth();
+    const [isFavorite, setIsFavorite] = useState(initialLiked);
+    const [loading, setLoading] = useState(false);
 
-    // Ref để cuộn xuống phần tìm kiếm
-    const searchSectionRef = useRef<HTMLDivElement>(null);
-
-    // Load ingredients from localStorage on mount
     useEffect(() => {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed)) {
-                    setIngredients(parsed);
-                }
-            } catch (error) {
-                console.error('Failed to parse stored ingredients:', error);
-            }
+        setIsFavorite(initialLiked);
+    }, [initialLiked]);
+
+    const handleToggleFavorite = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!user) {
+            alert("Please login to save recipes!");
+            return;
         }
-    }, []);
-
-    // Save ingredients to localStorage whenever they change
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(ingredients));
-    }, [ingredients]);
-
-    // Auto-search when filters change (if already searched)
-    useEffect(() => {
-        if (hasSearched) {
-            handleSearch();
-        }
-    }, [filters]);
-
-    const handleAddIngredient = (ingredient: string) => {
-        if (!ingredients.includes(ingredient)) {
-            setIngredients([...ingredients, ingredient]);
-        }
-    };
-
-    const handleRemoveIngredient = (ingredient: string) => {
-        setIngredients(ingredients.filter(ing => ing !== ingredient));
-    };
-
-    const handleClearAll = () => {
-        setIngredients([]);
-        setFilters({});
-        setRecipes([]);
-        setHasSearched(false);
-    };
-
-    const handleSearch = async () => {
-        setIsSearching(true);
-        setHasSearched(true);
-
+        setLoading(true);
         try {
-            const data: any = await recipeAPI.search({
-                ingredients: ingredients,
-                cuisine: filters.cuisine,
-                mealType: filters.mealType,
-                difficulty: filters.difficulty,
-                maxTime: filters.maxTime,
-                minRating: filters.minRating,
-                isVegetarian: filters.isVegetarian,
-                isVegan: filters.isVegan,
-                isGlutenFree: filters.isGlutenFree,
-            });
-
-            setRecipes(data);
+            const userId = user._id || user.id;
+            if (isFavorite) {
+                await userAPI.removeFavorite(userId, recipe._id);
+                setIsFavorite(false);
+            } else {
+                await userAPI.addFavorite(userId, recipe._id);
+                setIsFavorite(true);
+            }
         } catch (error) {
-            console.error('Search failed:', error);
-            const results = searchRecipes(ingredients, filters);
-            setRecipes(results);
+            console.error("Failed to toggle favorite", error);
         } finally {
-            setIsSearching(false);
+            setLoading(false);
         }
     };
 
-    const handleRecipeClick = (recipeId: string) => {
-        navigate(`/recipe/${recipeId}`);
-    };
-
-    const handleLogout = () => {
-        logout();
-    };
-
-    const scrollToSearch = () => {
-        searchSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Helper to get status color
+    const getStatusStyle = (status?: string) => {
+        switch (status) {
+            case 'approved': return 'bg-green-500 text-white';
+            case 'rejected': return 'bg-red-500 text-white';
+            default: return 'bg-yellow-400 text-white'; // Pending
+        }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-            {/* Header */}
-            <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 h-[80px]">
-                <div className="container mx-auto px-4 h-full flex items-center justify-between">
-                    <Link to="/" className="flex items-center">
-                        <Logo />
-                    </Link>
-                    <div className="flex items-center gap-6">
-                        <nav className="hidden md:flex items-center gap-6">
-                            <a href="#about" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
-                                About Us
-                            </a>
-                            <a href="#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
-                                Contact
-                            </a>
-                            <Link
-                                to="/add-recipe"
-                                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-mono text-lg font-bold tracking-wider uppercase"
-                            >
-                                <PlusCircle className="w-5 h-5" />
-                                Share Recipe
-                            </Link>
-                        </nav>
-
-                        {/* User Menu */}
-                        {user && (
-                            <>
-                                <Link
-                                    to="/shopping-list"
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-orange-600 transition-colors font-medium"
-                                >
-                                    <ShoppingBag className="w-4 h-4" />
-                                    Shopping List
-                                </Link>
-                                <span className="text-sm text-gray-600 hidden md:inline">Hello, <strong>{user.name}</strong></span>
-                                <Link
-                                    to="/profile"
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
-                                >
-                                    <User className="w-4 h-4" />
-                                    Profile
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 font-medium transition-colors"
-                                >
-                                    <LogOut className="w-4 h-4" />
-                                    Logout
-                                </button>
-                            </>
-                        )}
-                        {!user && (
-                            <Link
-                                to="/login"
-                                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-                            >
-                                Login
-                            </Link>
-                        )}
-                    </div>
-                </div>
-            </header>
-
-            {/* Hero Section */}
-            <div className="relative h-[600px] w-full overflow-hidden">
-                <img 
-                    src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?q=80&w=1172&auto=format&fit=crop" 
-                    alt="Fresh Ingredients" 
-                    className="absolute inset-0 w-full h-full object-cover"
+        <div
+            onClick={onClick}
+            className="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border border-gray-100 relative"
+        >
+            <div className="relative h-48 overflow-hidden bg-gray-200">
+                <img
+                    src={recipe.image && recipe.image.startsWith('http') ? recipe.image : 'https://placehold.co/600x400?text=Yummy'}
+                    alt={recipe.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-black/50" />
-                <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 pb-16">
-                    <span className="bg-[#FFB800] text-gray-900 px-6 py-2 rounded-full font-bold mb-6 text-sm md:text-base uppercase tracking-wide shadow-lg">
-                        Smart Kitchen Companion
-                    </span>
-                    <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 leading-tight max-w-4xl">
-                        Turn Your Ingredients Into Delicious Meals
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-100 max-w-2xl mb-12 leading-relaxed">
-                        Don't know what to cook? Simply tell us what ingredients you have in your fridge, and we'll find the perfect recipe for you.
-                    </p>
-                    <button 
-                        onClick={scrollToSearch}
-                        className="group flex flex-col items-center gap-2 text-white hover:text-orange-300 transition-colors animate-bounce cursor-pointer"
-                    >
-                        <span className="font-medium text-lg">Start Cooking</span>
-                        <ChevronDown className="w-8 h-8 group-hover:translate-y-1 transition-transform" />
-                    </button>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300" />
+
+                {/* --- NEW: STATUS BADGE (Top Left) --- */}
+                {showStatus && recipe.status && (
+                    <div className={`absolute top-3 left-3 px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-wide shadow-sm z-10 ${getStatusStyle(recipe.status)}`}>
+                        {recipe.status}
+                    </div>
+                )}
+
+                {/* Heart Button (Top Right) */}
+                <button
+                    onClick={handleToggleFavorite}
+                    disabled={loading}
+                    className="absolute top-3 right-3 p-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full shadow-sm hover:bg-white transition-all active:scale-90 z-10"
+                >
+                    <Heart
+                        className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white hover:text-red-500'
+                            }`}
+                    />
+                </button>
+
+                {/* Rating (Bottom Left) */}
+                <div className="absolute bottom-3 left-3 px-2 py-1 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                    <span className="text-xs font-bold text-white">{recipe.rating || 0}</span>
                 </div>
             </div>
 
-            {/* Main Content */}
-            <main className="container mx-auto px-4 py-8"> 
-                
-                {/* Search Section */}
-                <div ref={searchSectionRef} className="mb-8 scroll-mt-24"> 
-                    <div className="text-center mb-6"> 
-                        <h2 className="text-3xl md:text-4xl font-bold font-sans text-gray-900 mb-3 pt-2">
-                            What Ingredients Do You Have?
-                        </h2>
-                        <p className="text-base text-gray-600 font-medium">Discover delicious recipes tailored to what's in your kitchen</p>
+            <div className="p-4">
+                <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-1 group-hover:text-orange-600 transition-colors">
+                    {recipe.title}
+                </h3>
+                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                    <div className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4" />
+                        <span>{recipe.time} min</span>
                     </div>
-
-                    <SearchBar onAddIngredient={handleAddIngredient} />
-                    <TagList
-                        ingredients={ingredients}
-                        onRemove={handleRemoveIngredient}
-                        onClearAll={handleClearAll}
-                    />
-
-                    {/* Search Button */}
-                    {ingredients.length > 0 && (
-                        <div className="mt-6 text-center"> 
-                            <button
-                                onClick={handleSearch}
-                                disabled={isSearching}
-                                className="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                            >
-                                {isSearching ? 'Searching...' : 'Find Recipes'}
-                            </button>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                        <ChefHat className="w-4 h-4" />
+                        <span className="capitalize">{recipe.difficulty}</span>
+                    </div>
                 </div>
-
-                {/* Filters Panel */}
-                <div className="mb-6">
-                    <FiltersPanel filters={filters} onFilterChange={setFilters} />
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span className="px-3 py-1 bg-orange-50 text-orange-600 text-xs font-semibold rounded-full">
+                        {recipe.cuisine}
+                    </span>
+                    <span className="text-xs text-gray-400 uppercase tracking-wider font-medium">
+                        {recipe.mealType}
+                    </span>
                 </div>
-
-                {/* Search Results */}
-                {hasSearched && (
-                    <div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {recipes.length > 0
-                                    ? `Found ${recipes.length} recipe${recipes.length !== 1 ? 's' : ''}`
-                                    : 'No recipes found'}
-                            </h2>
-                        </div>
-                        <ResultsGrid
-                            recipes={recipes}
-                            onRecipeClick={handleRecipeClick}
-                            isSearching={isSearching}
-                        />
-                    </div>
-                )}
-
-                {/* Welcome Cards */}
-                {!hasSearched && ingredients.length === 0 && (
-                    <div className="text-center py-4"> 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                            {/* Card 1 */}
-                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-                                    <ChefHat className="w-5 h-5 text-orange-500" />
-                                </div>
-                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Smart Search</h4>
-                                <p className="text-sm text-gray-600 leading-relaxed px-2">
-                                    Enter what you have, show what you can make. No food waste!
-                                </p>
-                            </div>
-
-                            {/* Card 2 */}
-                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-                                    <Filter className="w-5 h-5 text-orange-500" />
-                                </div>
-                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Dietary Friendly</h4>
-                                <p className="text-sm text-gray-600 leading-relaxed px-2">
-                                    Vegetarian, Vegan, or Gluten-free? We cover every lifestyle.
-                                </p>
-                            </div>
-
-                            {/* Card 3 */}
-                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-                                    <PlusCircle className="w-5 h-5 text-orange-500" />
-                                </div>
-                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Community</h4>
-                                <p className="text-sm text-gray-600 leading-relaxed px-2">
-                                    Discover and share secret recipes with other home cooks.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </main>
-
-            {/* About Section */}
-            <AboutSection />
-
-            {/* Contact Section */}
-            <ContactSection />
-
-            {/* Footer */}
-            <Footer />
+            </div>
         </div>
     );
 };

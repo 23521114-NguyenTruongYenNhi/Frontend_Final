@@ -114,95 +114,85 @@ export const HomePage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
             {/* Header */}
-            <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-                <div className="container mx-auto px-4 py-4 md:py-6">
-                    <div className="flex items-center justify-between">
-                        <Link to="/" className="flex items-center">
-                            <Logo />
-                        </Link>
-                        <div className="flex items-center gap-6">
-                            <nav className="hidden md:flex items-center gap-6">
-                                <a href="#about" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
-                                    About Us
-                                </a>
-                                <a href="#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
-                                    Contact
-                                </a>
-                                <Link
-                                    to="/add-recipe"
-                                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-mono text-lg font-bold tracking-wider uppercase"
-                                >
-                                    <PlusCircle className="w-6 h-6" />
-                                    Share Recipe
-                                </Link>
-                            </nav>
+            <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 h-[80px]">
+                <div className="container mx-auto px-4 h-full flex items-center justify-between">
+                    <Link to="/" className="flex items-center">
+                        <Logo />
+                    </Link>
+                    <div className="flex items-center gap-6">
+                        <nav className="hidden md:flex items-center gap-6">
+                            <a href="#about" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                                About Us
+                            </a>
+                            <a href="#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                                Contact
+                            </a>
+                            <Link
+                                to="/add-recipe"
+                                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-mono text-lg font-bold tracking-wider uppercase"
+                            >
+                                <PlusCircle className="w-5 h-5" />
+                                Share Recipe
+                            </Link>
+                        </nav>
 
-                            {/* User Menu */}
-                            {user && (
-                                <>
-                                    <Link
-                                        to="/shopping-list"
-                                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-orange-600 transition-colors font-medium"
-                                    >
-                                        <ShoppingBag className="w-4 h-4" />
-                                        Shopping List
-                                    </Link>
-                                    <span className="text-sm text-gray-600 hidden md:inline">Hello, <strong>{user.name}</strong></span>
-                                    <Link
-                                        to="/profile"
-                                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
-                                    >
-                                        <User className="w-4 h-4" />
-                                        Profile
-                                    </Link>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 font-medium transition-colors"
-                                    >
-                                        <LogOut className="w-4 h-4" />
-                                        Logout
-                                    </button>
-                                </>
-                            )}
-                            {!user && (
+                        {/* User Menu */}
+                        {user && (
+                            <>
                                 <Link
-                                    to="/login"
-                                    className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                                    to="/shopping-list"
+                                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-orange-600 transition-colors font-medium"
                                 >
-                                    Login
+                                    <ShoppingBag className="w-4 h-4" />
+                                    Shopping List
                                 </Link>
-                            )}
-                        </div>
+                                <span className="text-sm text-gray-600 hidden md:inline">Hello, <strong>{user.name}</strong></span>
+                                <Link
+                                    to="/profile"
+                                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                                >
+                                    <User className="w-4 h-4" />
+                                    Profile
+                                </Link>
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Logout
+                                </button>
+                            </>
+                        )}
+                        {!user && (
+                            <Link
+                                to="/login"
+                                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                            >
+                                Login
+                            </Link>
+                        )}
                     </div>
                 </div>
             </header>
 
             {/* Hero Section */}
             <div className="relative h-[600px] w-full overflow-hidden">
-                {/* Background Image */}
                 <img 
                     src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?q=80&w=1172&auto=format&fit=crop" 
                     alt="Fresh Ingredients" 
                     className="absolute inset-0 w-full h-full object-cover"
                 />
-                
-                {/* Dark Overlay */}
                 <div className="absolute inset-0 bg-black/50" />
-
-                {/* Hero Content */}
                 <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 pb-16">
                     <span className="bg-[#FFB800] text-gray-900 px-6 py-2 rounded-full font-bold mb-6 text-sm md:text-base uppercase tracking-wide shadow-lg">
                         Smart Kitchen Companion
                     </span>
-                    
                     <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 leading-tight max-w-4xl">
                         Turn Your Ingredients Into Delicious Meals
                     </h1>
-                    
                     <p className="text-lg md:text-xl text-gray-100 max-w-2xl mb-12 leading-relaxed">
                         Don't know what to cook? Simply tell us what ingredients you have in your fridge, and we'll find the perfect recipe for you.
                     </p>
-                    
                     <button 
                         onClick={scrollToSearch}
                         className="group flex flex-col items-center gap-2 text-white hover:text-orange-300 transition-colors animate-bounce cursor-pointer"
@@ -214,15 +204,15 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-12">
+            <main className="container mx-auto px-4 py-8"> 
                 
                 {/* Search Section */}
-                <div ref={searchSectionRef} className="mb-12 scroll-mt-40">
-                    <div className="text-center mb-8">
-                        <h2 className="text-4xl font-bold font-sans text-gray-900 mb-4 pt-4">
+                <div ref={searchSectionRef} className="mb-8 scroll-mt-24"> 
+                    <div className="text-center mb-6"> 
+                        <h2 className="text-3xl md:text-4xl font-bold font-sans text-gray-900 mb-3 pt-2">
                             What Ingredients Do You Have?
                         </h2>
-                        <p className="text-lg text-gray-600 font-medium">Discover delicious recipes tailored to what's in your kitchen</p>
+                        <p className="text-base text-gray-600 font-medium">Discover delicious recipes tailored to what's in your kitchen</p>
                     </div>
 
                     <SearchBar onAddIngredient={handleAddIngredient} />
@@ -234,11 +224,11 @@ export const HomePage: React.FC = () => {
 
                     {/* Search Button */}
                     {ingredients.length > 0 && (
-                        <div className="mt-8 text-center">
+                        <div className="mt-6 text-center"> 
                             <button
                                 onClick={handleSearch}
                                 disabled={isSearching}
-                                className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                className="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
                                 {isSearching ? 'Searching...' : 'Find Recipes'}
                             </button>
@@ -247,7 +237,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Filters Panel */}
-                <div className="mb-8">
+                <div className="mb-6">
                     <FiltersPanel filters={filters} onFilterChange={setFilters} />
                 </div>
 
@@ -271,38 +261,38 @@ export const HomePage: React.FC = () => {
 
                 {/* Welcome Cards */}
                 {!hasSearched && ingredients.length === 0 && (
-                    <div className="text-center py-10">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    <div className="text-center py-4"> 
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
                             {/* Card 1 */}
-                            <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100 flex flex-col items-center h-full hover:shadow-lg transition-shadow duration-300">
-                                <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                    <ChefHat className="w-7 h-7 text-orange-500" />
+                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                                    <ChefHat className="w-5 h-5 text-orange-500" />
                                 </div>
-                                <h4 className="font-sans font-bold text-xl text-gray-800 mb-3">Smart Search</h4>
-                                <p className="text-gray-600 leading-relaxed">
-                                    Enter what you have, and we'll show you what you can make. No more food waste!
+                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Smart Search</h4>
+                                <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                    Enter what you have, show what you can make. No food waste!
                                 </p>
                             </div>
 
                             {/* Card 2 */}
-                            <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100 flex flex-col items-center h-full hover:shadow-lg transition-shadow duration-300">
-                                <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                    <Filter className="w-7 h-7 text-orange-500" />
+                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                                    <Filter className="w-5 h-5 text-orange-500" />
                                 </div>
-                                <h4 className="font-sans font-bold text-xl text-gray-800 mb-3">Dietary Friendly</h4>
-                                <p className="text-gray-600 leading-relaxed">
-                                    Vegetarian, Vegan, or Gluten-free? We have delicious recipes for every lifestyle.
+                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Dietary Friendly</h4>
+                                <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                    Vegetarian, Vegan, or Gluten-free? We cover every lifestyle.
                                 </p>
                             </div>
 
                             {/* Card 3 */}
-                            <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100 flex flex-col items-center h-full hover:shadow-lg transition-shadow duration-300">
-                                <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                    <PlusCircle className="w-7 h-7 text-orange-500" />
+                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                                    <PlusCircle className="w-5 h-5 text-orange-500" />
                                 </div>
-                                <h4 className="font-sans font-bold text-xl text-gray-800 mb-3">Community</h4>
-                                <p className="text-gray-600 leading-relaxed">
-                                    Join our community to discover and share secret recipes with other home cooks.
+                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Community</h4>
+                                <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                    Discover and share secret recipes with other home cooks.
                                 </p>
                             </div>
                         </div>
