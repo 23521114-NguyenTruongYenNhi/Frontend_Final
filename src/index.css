@@ -28,4 +28,8 @@
     .font-rounded {
         font-family: 'Quicksand', sans-serif;
     }
+
+    .font-handwritten {
+        font-family: 'Satisfy', cursive;
+    }
 }

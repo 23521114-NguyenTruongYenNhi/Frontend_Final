@@ -7,6 +7,7 @@ import { RecipeDetailPage } from './pages/RecipeDetailPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AddRecipePage } from './pages/AddRecipePage';
 import { AdminPage } from './pages/AdminPage';
+import { ShoppingListPage } from './pages/ShoppingListPage';
 
 function App() {
     return (
@@ -19,6 +20,7 @@ function App() {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/add-recipe" element={<AddRecipePage />} />
                     <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/shopping-list" element={<ShoppingListPage />} />
                 </Routes>
             </AuthProvider>
         </Router>

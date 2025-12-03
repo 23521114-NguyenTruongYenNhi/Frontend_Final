@@ -1,32 +1,85 @@
-﻿// File: src/api/client.ts
-import axiosClient from './axiosClient';
+﻿// API Client for Mystère Meal Backend
+// Centralized API configuration and request handling
 
-// Helper for generic requests if needed, but we mainly use axiosClient
-// The base URL is now dynamically determined by the environment variable
-// VITE_API_URL (used in production/deployment) or defaults to local development.
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// --- Auth API ---
-export const authAPI = {
-    login: async (credentials: any) => {
-        const response = await axiosClient.post('/users/login', credentials);
-        return response.data;
-    },
-    signup: async (userData: any) => {
-        const response = await axiosClient.post('/users/signup', userData);
-        return response.data;
+// Helper to get auth token from localStorage
+const getAuthToken = (): string | null => {
+    const user = localStorage.getItem('mystere-meal-user');
+    if (user) {
+        try {
+            const parsed = JSON.parse(user);
+            return parsed.token || null;
+        } catch {
+            return null;
+        }
     }
+    return null;
 };
 
-// --- Recipe API ---
-export const recipeAPI = {
-    // 1. Get All Recipes (Discovery Feed)
-    getAll: async () => {
-        const response = await axiosClient.get('/recipes');
-        return response.data;
+// Generic API request handler
+async function apiRequest<T>(
+    endpoint: string,
+    options: RequestInit = {}
+): Promise<T> {
+    const token = getAuthToken();
+
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const config: RequestInit = {
+        ...options,
+        headers,
+        mode: 'cors', // Enable CORS mode
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+            throw new Error(error.message || `HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        // Enhanced error handling
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            // Network error - backend likely not running
+            throw new Error('Cannot connect to server. Please make sure the backend is running.');
+        }
+        if (error instanceof Error) {
+            throw error;
+        }
+        throw new Error('Network error occurred');
+    }
+}
+
+// Auth API
+export const authAPI = {
+    signup: async (data: { name: string; email: string; password: string }) => {
+        return apiRequest('/users/signup', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
     },
 
-    // 2. Search Recipes
+    login: async (data: { email: string; password: string }) => {
+        return apiRequest('/users/login', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    },
+};
+
+// Recipe API
+export const recipeAPI = {
     search: async (params: {
         ingredients?: string[];
         cuisine?: string;
@@ -40,11 +93,9 @@ export const recipeAPI = {
     }) => {
         const queryParams = new URLSearchParams();
 
-        // Backend expects comma-separated string for ingredients
         if (params.ingredients && params.ingredients.length > 0) {
             queryParams.append('ingredients', params.ingredients.join(','));
         }
-
         if (params.cuisine) queryParams.append('cuisine', params.cuisine);
         if (params.mealType) queryParams.append('mealType', params.mealType);
         if (params.difficulty) queryParams.append('difficulty', params.difficulty);
@@ -54,90 +105,135 @@ export const recipeAPI = {
         if (params.isVegan) queryParams.append('isVegan', 'true');
         if (params.isGlutenFree) queryParams.append('isGlutenFree', 'true');
 
-        const response = await axiosClient.get(`/recipes/search?${queryParams.toString()}`);
-        return response.data;
+        return apiRequest(`/recipes/search?${queryParams.toString()}`);
     },
 
-    // 3. Get Single Recipe by ID
     getById: async (id: string) => {
-        const response = await axiosClient.get(`/recipes/${id}`);
-        return response.data;
+        return apiRequest(`/recipes/${id}`);
     },
 
-    // 4. Create New Recipe
-    create: async (data: any) => {
-        const response = await axiosClient.post('/recipes', data);
-        return response.data;
-    },
-
-    // 5. Add Comment
     addComment: async (recipeId: string, data: { text: string; rating: number }) => {
-        const response = await axiosClient.post(`/recipes/${recipeId}/comments`, data);
-        return response.data;
-    }
+        return apiRequest(`/recipes/${recipeId}/comments`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    },
+
+    create: async (data: any) => {
+        return apiRequest('/recipes', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    },
 };
 
-// --- User API ---
+// User API
 export const userAPI = {
     getProfile: async (userId: string) => {
-        const response = await axiosClient.get(`/users/${userId}`);
-        return response.data;
+        return apiRequest(`/users/${userId}`);
     },
-
-    getFavorites: async (userId: string) => {
-        const response = await axiosClient.get(`/users/${userId}/favorites`);
-        return response.data;
-    },
-
-    // --- FIX: Added missing method to fetch recipes created by the user ---
-    getCreatedRecipes: async (userId: string) => {
-        const response = await axiosClient.get(`/users/${userId}/recipes`);
-        return response.data;
-    },
-    // ---------------------------------------------------------------------
 
     addFavorite: async (userId: string, recipeId: string) => {
-        const response = await axiosClient.post(`/users/${userId}/favorites`, { recipeId });
-        return response.data;
+        return apiRequest(`/users/${userId}/favorites`, {
+            method: 'POST',
+            body: JSON.stringify({ recipeId }),
+        });
     },
 
     removeFavorite: async (userId: string, recipeId: string) => {
-        const response = await axiosClient.delete(`/users/${userId}/favorites/${recipeId}`);
-        return response.data;
-    }
+        return apiRequest(`/users/${userId}/favorites/${recipeId}`, {
+            method: 'DELETE',
+        });
+    },
+
+    getFavorites: async (userId: string) => {
+        return apiRequest(`/users/${userId}/favorites`);
+    },
+
+    getCreatedRecipes: async (userId: string) => {
+        return apiRequest(`/users/${userId}/recipes`);
+    },
 };
 
-// --- Admin API ---
+// Admin API
 export const adminAPI = {
-    getRecipes: async (status?: string) => {
-        const params = status ? { status } : {};
-        const response = await axiosClient.get('/admin/recipes', { params });
-        return response.data;
+    getRecipes: async (status?: 'pending' | 'approved' | 'rejected') => {
+        const query = status ? `?status=${status}` : '';
+        return apiRequest(`/admin/recipes${query}`);
     },
+
+    approveRecipe: async (recipeId: string) => {
+        return apiRequest(`/admin/recipes/${recipeId}/approve`, {
+            method: 'POST',
+        });
+    },
+
+    rejectRecipe: async (recipeId: string) => {
+        return apiRequest(`/admin/recipes/${recipeId}/reject`, {
+            method: 'POST',
+        });
+    },
+
+    deleteRecipe: async (recipeId: string) => {
+        return apiRequest(`/admin/recipes/${recipeId}`, {
+            method: 'DELETE',
+        });
+    },
+
     getUsers: async () => {
-        const response = await axiosClient.get('/admin/users');
-        return response.data;
+        return apiRequest('/admin/users');
     },
-    approveRecipe: async (id: string) => {
-        const response = await axiosClient.post(`/admin/recipes/${id}/approve`);
-        return response.data;
+
+    lockUser: async (userId: string) => {
+        return apiRequest(`/admin/users/${userId}/lock`, {
+            method: 'POST',
+        });
     },
-    rejectRecipe: async (id: string) => {
-        const response = await axiosClient.post(`/admin/recipes/${id}/reject`);
-        return response.data;
+
+    unlockUser: async (userId: string) => {
+        return apiRequest(`/admin/users/${userId}/unlock`, {
+            method: 'POST',
+        });
     },
-    deleteRecipe: async (id: string) => {
-        const response = await axiosClient.delete(`/admin/recipes/${id}`);
-        return response.data;
+};
+
+// Shopping List API
+export const shoppingListAPI = {
+    getList: async () => {
+        return apiRequest('/shopping-list');
     },
-    lockUser: async (id: string) => {
-        const response = await axiosClient.post(`/admin/users/${id}/lock`);
-        return response.data;
+
+    addItem: async (data: { name: string; quantity: number; unit: string; recipeId?: string }) => {
+        return apiRequest('/shopping-list/items', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
     },
-    unlockUser: async (id: string) => {
-        const response = await axiosClient.post(`/admin/users/${id}/unlock`);
-        return response.data;
-    }
+
+    toggleItem: async (itemId: string) => {
+        return apiRequest(`/shopping-list/items/${itemId}/toggle`, {
+            method: 'PATCH',
+        });
+    },
+
+    deleteItem: async (itemId: string) => {
+        return apiRequest(`/shopping-list/items/${itemId}`, {
+            method: 'DELETE',
+        });
+    },
+
+    clearCompleted: async () => {
+        return apiRequest('/shopping-list/clear-completed', {
+            method: 'DELETE',
+        });
+    },
+
+    addMissingIngredients: async (recipeId: string) => {
+        return apiRequest('/shopping-list/add-from-recipe', {
+            method: 'POST',
+            body: JSON.stringify({ recipeId }),
+        });
+    },
 };
 
 export { API_BASE_URL };

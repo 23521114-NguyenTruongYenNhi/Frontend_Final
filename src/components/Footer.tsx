@@ -19,6 +19,11 @@ export const Footer: React.FC = () => {
                             Discover delicious recipes based on ingredients you have.
                             Share your culinary creations and explore a world of flavors.
                         </p>
+                        <div className="flex items-center gap-2 text-gray-400">
+                            <span>Made with</span>
+                            <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                            <span>for food lovers</span>
+                        </div>
                     </div>
 
                     {/* Quick Links */}
@@ -29,16 +34,6 @@ export const Footer: React.FC = () => {
                                 <Link to="/" className="text-gray-400 hover:text-orange-500 transition-colors">
                                     Home
                                 </Link>
-                            </li>
-                            <li>
-                                <a href="#about" className="text-gray-400 hover:text-orange-500 transition-colors">
-                                    About Us
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#contact" className="text-gray-400 hover:text-orange-500 transition-colors">
-                                    Contact
-                                </a>
                             </li>
                             <li>
                                 <Link to="/add-recipe" className="text-gray-400 hover:text-orange-500 transition-colors">
@@ -54,8 +49,8 @@ export const Footer: React.FC = () => {
                         <ul className="space-y-2">
                             <li className="flex items-center gap-2 text-gray-400">
                                 <Mail className="w-4 h-4" />
-                                <a href="mailto:mysteremeal.official@gmail.com" className="hover:text-orange-500 transition-colors">
-                                    mysteremeal.official@gmail.com
+                                <a href="mailto:hello@mysteremeal.com" className="hover:text-orange-500 transition-colors">
+                                    hello@mysteremeal.com
                                 </a>
                             </li>
                         </ul>
