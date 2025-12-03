@@ -259,29 +259,30 @@ export const HomePage: React.FC = () => {
 
                     {!hasSearched && ingredients.length === 0 && (
                         <div className="text-center py-0 mt-8"> 
-                            {/* FIX: Sử dụng max-w-5xl để các khung không quá rộng, aspect-square để tạo hình vuông, và justify-center */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                                <div className="aspect-square p-6 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
-                                    <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                        <ChefHat className="w-7 h-7 text-orange-500" />
+                            {/* FIX: Thu nhỏ khung lại: max-w-4xl */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                                {/* FIX: Giảm padding (p-5), kích thước icon (w-12, w-6), chữ (text-lg, text-sm) */}
+                                <div className="aspect-square p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                                        <ChefHat className="w-6 h-6 text-orange-500" />
                                     </div>
                                     <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Smart Search</h4>
                                     <p className="text-sm text-gray-600 leading-relaxed px-2">
                                         Enter what you have, show what you can make. No food waste!
                                     </p>
                                 </div>
-                                <div className="aspect-square p-6 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
-                                    <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                        <Filter className="w-7 h-7 text-orange-500" />
+                                <div className="aspect-square p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                                        <Filter className="w-6 h-6 text-orange-500" />
                                     </div>
                                     <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Dietary Friendly</h4>
                                     <p className="text-sm text-gray-600 leading-relaxed px-2">
                                         Vegetarian, Vegan, or Gluten-free? We cover every lifestyle.
                                     </p>
                                 </div>
-                                <div className="aspect-square p-6 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
-                                    <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                                        <PlusCircle className="w-7 h-7 text-orange-500" />
+                                <div className="aspect-square p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                                        <PlusCircle className="w-6 h-6 text-orange-500" />
                                     </div>
                                     <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Community</h4>
                                     <p className="text-sm text-gray-600 leading-relaxed px-2">
@@ -294,12 +295,12 @@ export const HomePage: React.FC = () => {
                 </div>
             </main>
 
-            {/* About Section - FIX: Thu nhỏ padding để gọn hơn (py-8) */}
+            {/* About Section - Giữ nguyên logic */}
             <div id="about" className="scroll-mt-20 flex flex-col bg-white pt-0 pb-8">
                 <AboutSection />
             </div>
 
-            {/* Contact Section */}
+            {/* Contact Section - Giữ nguyên logic */}
             <div id="contact" className="scroll-mt-20 min-h-[80vh] flex flex-col justify-center bg-white py-24">
                 <ContactSection />
             </div>
