@@ -1,7 +1,7 @@
 ﻿// API Client for Mystère Meal Backend
 // Centralized API configuration and request handling
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mystere-meal.onrender.com/';
 
 // Helper to get auth token from localStorage
 const getAuthToken = (): string | null => {
