@@ -1,9 +1,17 @@
 ﻿// File: src/pages/AddRecipePage.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { recipeAPI } from '../api/client';
+// Đảm bảo import cả hai API cần thiết
+import { recipeAPI, ingredientNutritionAPI, IngredientNutritionPayload } from '../api/client'; 
 import { ChefHat, Plus, X, ArrowLeft, Upload, Clock } from 'lucide-react';
+
+// --- INTERFACE CHO INPUT CÓ CẤU TRÚC ---
+interface IngredientInput {
+    name: string;
+    quantity: string; // Vẫn dùng string để gắn vào input
+    unit: string;
+}
 
 export const AddRecipePage: React.FC = () => {
     const navigate = useNavigate();
@@ -16,36 +24,82 @@ export const AddRecipePage: React.FC = () => {
     // --- Form Data States ---
     const [title, setTitle] = useState('');
     const [image, setImage] = useState('');
-    const [cuisine, setCuisine] = useState('Vietnamese'); // Default value
-    const [mealType, setMealType] = useState('Dinner');   // Default value
-    const [difficulty, setDifficulty] = useState('Medium'); // Default value
+    const [cuisine, setCuisine] = useState('Vietnamese');
+    const [mealType, setMealType] = useState('Dinner');
+    const [difficulty, setDifficulty] = useState('Medium');
     const [time, setTime] = useState('');
 
-    // Dynamic lists for ingredients and steps
-    const [ingredients, setIngredients] = useState<string[]>(['']);
+    // Dynamic lists for ingredients (Dùng structured object)
+    const [ingredients, setIngredients] = useState<IngredientInput[]>([
+        { name: '', quantity: '', unit: 'g' }
+    ]);
     const [steps, setSteps] = useState<string[]>(['']);
 
-    // Nutrition info (stored as strings for input, converted to numbers on submit)
+    // Nutrition info (sẽ được tự động cập nhật)
     const [calories, setCalories] = useState('');
     const [protein, setProtein] = useState('');
     const [fat, setFat] = useState('');
     const [carbs, setCarbs] = useState('');
 
-    // Dietary checkboxes
+    // Dietary checkboxes (giữ nguyên)
     const [isVegetarian, setIsVegetarian] = useState(false);
     const [isVegan, setIsVegan] = useState(false);
     const [isGlutenFree, setIsGlutenFree] = useState(false);
 
     // --- Authentication Check ---
-    React.useEffect(() => {
+    useEffect(() => {
         if (!user) {
             navigate('/login');
         }
     }, [user, navigate]);
 
-    // --- Handlers for Ingredients ---
+
+    // --- HÀM TÍNH TOÁN VÀ CẬP NHẬT TỰ ĐỘNG ---
+    const calculateAndSetNutrition = async () => {
+        // 1. Lọc và chuyển đổi ingredients sang format số học
+        const parsedIngredients: IngredientNutritionPayload[] = ingredients
+            .map(ing => ({
+                name: ing.name.trim(),
+                quantity: parseFloat(ing.quantity) || 0,
+                unit: ing.unit.trim(),
+            }))
+            .filter(item => item.name && item.quantity > 0 && item.unit);
+        
+        if (parsedIngredients.length === 0) {
+            // Reset nếu không có nguyên liệu hợp lệ
+            setCalories(''); setProtein(''); setFat(''); setCarbs('');
+            return;
+        }
+
+        try {
+            // 2. Gọi API tính toán tổng dinh dưỡng
+            const result: any = await ingredientNutritionAPI.calculateRecipeNutrition(parsedIngredients); 
+            
+            // 3. Cập nhật các trường Nutrition trong form
+            setCalories(Math.round(result.totalNutrition.calories).toString());
+            setProtein(result.totalNutrition.protein.toFixed(1));
+            setFat(result.totalNutrition.fat.toFixed(1));
+            setCarbs(result.totalNutrition.carbs.toFixed(1));
+
+        } catch (err) {
+            console.warn('Could not auto-calculate nutrition data. Proceeding without it.', err);
+            setCalories(''); setProtein(''); setFat(''); setCarbs('');
+        }
+    };
+    
+    // EFFECT: Chạy tính toán mỗi khi danh sách ingredients thay đổi (Debounce 800ms)
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            calculateAndSetNutrition();
+        }, 800); 
+        
+        return () => clearTimeout(handler);
+    }, [ingredients]);
+    // ------------------------------------------
+
+    // --- Handlers for Ingredients (Dùng object) ---
     const addIngredient = () => {
-        setIngredients([...ingredients, '']);
+        setIngredients([...ingredients, { name: '', quantity: '', unit: 'g' }]);
     };
 
     const removeIngredient = (index: number) => {
@@ -54,24 +108,16 @@ export const AddRecipePage: React.FC = () => {
         }
     };
 
-    const updateIngredient = (index: number, value: string) => {
+    const updateIngredient = (index: number, field: keyof IngredientInput, value: string) => {
         const newIngredients = [...ingredients];
-        newIngredients[index] = value;
+        newIngredients[index] = { ...newIngredients[index], [field]: value };
         setIngredients(newIngredients);
     };
 
-    // --- Handlers for Steps ---
-    const addStep = () => {
-        setSteps([...steps, '']);
-    };
-
-    const removeStep = (index: number) => {
-        if (steps.length > 1) {
-            setSteps(steps.filter((_, i) => i !== index));
-        }
-    };
-
-    const updateStep = (index: number, value: string) => {
+    // --- Handlers for Steps (giữ nguyên) ---
+    const addStep = () => { setSteps([...steps, '']); };
+    const removeStep = (index: number) => { setSteps(steps.filter((_, i) => i !== index)); };
+    const updateStep = (index: number, value: string) => { 
         const newSteps = [...steps];
         newSteps[index] = value;
         setSteps(newSteps);
@@ -82,14 +128,17 @@ export const AddRecipePage: React.FC = () => {
         e.preventDefault();
         setError('');
 
-        // 1. Validate basic fields
+        // 1. Chuyển đổi structured input thành string array cho Backend
+        const validIngredients = ingredients
+            .filter(ing => ing.name.trim() && ing.quantity.trim())
+            .map(ing => `${ing.quantity.trim()}${ing.unit.trim() ? ing.unit.trim() + ' ' : ''}${ing.name.trim()}`);
+            
+        // 2. Validation 
         if (!title.trim()) {
             setError('Please enter a recipe title');
             return;
         }
 
-        // Filter out empty inputs
-        const validIngredients = ingredients.filter(ing => ing.trim());
         if (validIngredients.length === 0) {
             setError('Please add at least one ingredient');
             return;
@@ -109,41 +158,37 @@ export const AddRecipePage: React.FC = () => {
         setIsSubmitting(true);
 
         try {
-            // 2. Prepare Data Payload (Matching Backend Schema)
+            // 3. Prepare Data Payload
             const recipeData = {
                 title: title.trim(),
-                image: image.trim() || 'https://placehold.co/600x400?text=Tasty+Food', // Default image
+                image: image.trim() || 'https://placehold.co/600x400?text=Tasty+Food',
                 cuisine,
                 mealType,
                 difficulty,
-                time: parseInt(time), // Ensure number type
-                ingredients: validIngredients,
+                time: parseInt(time),
+                ingredients: validIngredients, // Submitted as structured string array
                 steps: validSteps,
                 nutrition: {
+                    // Dùng giá trị đã được tính toán tự động
                     calories: parseInt(calories) || 0,
-                    protein: parseInt(protein) || 0,
-                    fat: parseInt(fat) || 0,
-                    carbs: parseInt(carbs) || 0,
+                    protein: parseFloat(protein) || 0,
+                    fat: parseFloat(fat) || 0,
+                    carbs: parseFloat(carbs) || 0,
                 },
                 isVegetarian,
                 isVegan,
                 isGlutenFree,
             };
 
-            console.log("Submitting Recipe Data:", recipeData);
-
-            // 3. Send Data to Backend
             await recipeAPI.create(recipeData);
 
             // 4. Success & Redirect
-            // Show alert about pending status because the backend default status is 'pending'
             alert("Recipe submitted successfully! Your recipe is pending approval from the Admin.");
-
-            // Navigate to Profile to see "My Recipes"
             navigate('/profile');
+            
         } catch (err: any) {
             console.error('Failed to create recipe:', err);
-            setError(err.response?.data?.message || 'Failed to create recipe. Please check your connection.');
+            setError(err.message || 'Failed to create recipe. Please check your connection.');
         } finally {
             setIsSubmitting(false);
         }
@@ -191,7 +236,6 @@ export const AddRecipePage: React.FC = () => {
                         {/* 1. Basic Info */}
                         <div>
                             <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Basic Information</h3>
-
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Recipe Title *</label>
@@ -290,7 +334,7 @@ export const AddRecipePage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* 2. Ingredients Section */}
+                        {/* 2. Ingredients Section (STRUCTURED INPUTS) */}
                         <div>
                             <div className="flex items-center justify-between mb-4 border-b pb-2">
                                 <h3 className="text-xl font-bold text-gray-800">Ingredients *</h3>
@@ -304,16 +348,47 @@ export const AddRecipePage: React.FC = () => {
                             </div>
 
                             <div className="space-y-3">
+                                {/* HÀNG HEADER */}
+                                <div className="flex items-center gap-2 font-bold text-sm text-gray-600 border-b pb-1 ml-6">
+                                    <span className="flex-1">Ingredient Name</span>
+                                    <span className="w-24 text-center">Quantity</span>
+                                    <span className="w-32 text-center">Unit</span>
+                                    <span className="w-8"></span>
+                                </div>
+                                
+                                {/* INPUTS */}
                                 {ingredients.map((ingredient, index) => (
                                     <div key={index} className="flex items-center gap-2">
                                         <span className="text-gray-400 w-6 text-center">{index + 1}.</span>
+                                        
+                                        {/* Tên Nguyên liệu */}
                                         <input
                                             type="text"
-                                            value={ingredient}
-                                            onChange={(e) => updateIngredient(index, e.target.value)}
-                                            placeholder="e.g., 200g Chicken Breast"
+                                            value={ingredient.name}
+                                            onChange={(e) => updateIngredient(index, 'name', e.target.value)}
+                                            placeholder="e.g., Chicken Breast"
                                             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
                                         />
+                                        
+                                        {/* Số lượng */}
+                                        <input
+                                            type="number"
+                                            value={ingredient.quantity}
+                                            onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
+                                            placeholder="SL"
+                                            min="0"
+                                            className="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                                        />
+                                        
+                                        {/* Đơn vị */}
+                                        <input
+                                            type="text"
+                                            value={ingredient.unit}
+                                            onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
+                                            placeholder="g, ml, cup..."
+                                            className="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                                        />
+
                                         {ingredients.length > 1 && (
                                             <button
                                                 type="button"
@@ -328,7 +403,7 @@ export const AddRecipePage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* 3. Instructions Section */}
+                        {/* 3. Instructions Section (giữ nguyên) */}
                         <div>
                             <div className="flex items-center justify-between mb-4 border-b pb-2">
                                 <h3 className="text-xl font-bold text-gray-800">Instructions *</h3>
@@ -368,9 +443,9 @@ export const AddRecipePage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* 4. Nutrition Section */}
+                        {/* 4. Nutrition Section (AUTO-FILLED) */}
                         <div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Nutrition (Optional)</h3>
+                            <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Nutrition (Auto-Calculated)</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Calories</label>
@@ -381,6 +456,7 @@ export const AddRecipePage: React.FC = () => {
                                         placeholder="0"
                                         min="0"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                                        readOnly
                                     />
                                 </div>
                                 <div>
@@ -392,6 +468,7 @@ export const AddRecipePage: React.FC = () => {
                                         placeholder="0"
                                         min="0"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                                        readOnly
                                     />
                                 </div>
                                 <div>
@@ -403,6 +480,7 @@ export const AddRecipePage: React.FC = () => {
                                         placeholder="0"
                                         min="0"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                                        readOnly
                                     />
                                 </div>
                                 <div>
@@ -414,12 +492,17 @@ export const AddRecipePage: React.FC = () => {
                                         placeholder="0"
                                         min="0"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                                        readOnly
                                     />
                                 </div>
                             </div>
+                            <p className="mt-2 text-xs text-orange-600">
+                                Note: Nutrition data is automatically calculated from the structured ingredients above.
+                            </p>
                         </div>
 
-                        {/* 5. Dietary Options */}
+
+                        {/* 5. Dietary Options (giữ nguyên) */}
                         <div>
                             <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Dietary Tags</h3>
                             <div className="flex flex-wrap gap-6">

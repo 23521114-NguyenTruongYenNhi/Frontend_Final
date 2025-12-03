@@ -5,8 +5,7 @@ import axios from 'axios';
 // Determine the Base URL: Use environment variable for production/deployment, 
 // defaulting to local development port 5000.
 
-const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
-
+const API_BASE_URL = 'https://mystere-meal.onrender.com/api';
 const API_BASE_URL = `${baseUrl}/api`; 
 
 const axiosClient = axios.create({

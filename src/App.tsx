@@ -18,7 +18,7 @@ function App() {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/recipe/:id" element={<RecipeDetailPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/add-recipe" element={<AddRecipePage />} />
+                    <Route path="/create-recipe" element={<AddRecipePage />} />                    
                     <Route path="/admin" element={<AdminPage />} />
                     <Route path="/shopping-list" element={<ShoppingListPage />} />
                 </Routes>

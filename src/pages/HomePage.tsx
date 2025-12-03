@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+﻿// File: src/pages/HomePage.tsx
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SearchBar } from '../components/SearchBar';
@@ -11,7 +12,8 @@ import { Footer } from '../components/Footer';
 import { Recipe, RecipeFilters } from '../types/recipe';
 import { searchRecipes } from '../data/mockRecipes';
 import { recipeAPI } from '../api/client';
-import { ChefHat, LogOut, User, ShoppingBag, PlusCircle, Filter, ChevronDown } from 'lucide-react';
+// Thêm Shield/User icon cho Admin
+import { ChefHat, LogOut, User, ShoppingBag, PlusCircle, Filter, ChevronDown, Shield } from 'lucide-react';
 import { Logo } from '../components/Logo';
 
 const STORAGE_KEY = 'mystere-meal-ingredients';
@@ -27,6 +29,7 @@ export const HomePage: React.FC = () => {
 
     const searchSectionRef = useRef<HTMLDivElement>(null);
 
+    // --- Original Effects and Handlers (Giữ nguyên) ---
     useEffect(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -46,6 +49,7 @@ export const HomePage: React.FC = () => {
     }, [ingredients]);
 
     useEffect(() => {
+        // Chỉ tìm kiếm lại khi filters thay đổi VÀ đã có lần tìm kiếm trước đó
         if (hasSearched) {
             handleSearch();
         }
@@ -88,6 +92,7 @@ export const HomePage: React.FC = () => {
             setRecipes(data);
         } catch (error) {
             console.error('Search failed:', error);
+            // Fallback to mock data on API failure
             const results = searchRecipes(ingredients, filters);
             setRecipes(results);
         } finally {
@@ -124,7 +129,7 @@ export const HomePage: React.FC = () => {
                                 Contact
                             </a>
                             <Link
-                                to="/add-recipe"
+                                to="/create-recipe"
                                 className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-mono text-lg font-bold tracking-wider uppercase"
                             >
                                 <PlusCircle className="w-5 h-5" />
@@ -134,6 +139,7 @@ export const HomePage: React.FC = () => {
 
                         {user && (
                             <>
+                                {/* Shopping List Link */}
                                 <Link
                                     to="/shopping-list"
                                     className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-orange-600 transition-colors font-medium"
@@ -141,6 +147,19 @@ export const HomePage: React.FC = () => {
                                     <ShoppingBag className="w-4 h-4" />
                                     Shopping List
                                 </Link>
+
+                                {/* FIXED: ADMIN DASHBOARD LINK (ĐÃ THÊM) */}
+                                {user.isAdmin && (
+                                    <Link
+                                        to="/admin"
+                                        className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-700 transition-colors font-bold border border-purple-200 rounded-lg"
+                                    >
+                                        <Shield className="w-4 h-4" />
+                                        Admin
+                                    </Link>
+                                )}
+                                {/* END ADMIN LINK */}
+                                
                                 <span className="text-sm text-gray-600 hidden md:inline">Hello, <strong>{user.name}</strong></span>
                                 <Link
                                     to="/profile"
@@ -170,9 +189,9 @@ export const HomePage: React.FC = () => {
                 </div>
             </header>
 
-            {/* Hero Section */}
+            {/* Hero Section (ĐÃ SỬA LỖI CÚ PHÁP) */}
             <div className="relative h-[calc(100vh-80px)] w-full overflow-hidden">
-                <img
+                <img // Thêm thẻ img
                     src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?q=80&w=1172&auto=format&fit=crop"
                     alt="Fresh Ingredients"
                     className="absolute inset-0 w-full h-full object-cover"
@@ -202,9 +221,8 @@ export const HomePage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Main Content */}
+            {/* Main Content (Giữ nguyên) */}
             <main className="container mx-auto px-4">
-
                 {/* Search Section */}
                 <div
                     ref={searchSectionRef}
@@ -295,17 +313,17 @@ export const HomePage: React.FC = () => {
                 </div>
             </main>
 
-            {/* About Section */}
+            {/* About Section (Giữ nguyên) */}
             <div id="about" className="scroll-mt-20 flex flex-col bg-white pt-0 pb-12">
                 <AboutSection />
             </div>
 
-            {/* Contact Section */}
+            {/* Contact Section (Giữ nguyên) */}
             <div id="contact" className="scroll-mt-20 min-h-[calc(100vh-80px)] flex flex-col justify-center bg-white py-12">
                 <ContactSection />
             </div>
 
-            {/* Footer */}
+            {/* Footer (Giữ nguyên) */}
             <Footer />
         </div>
     );
