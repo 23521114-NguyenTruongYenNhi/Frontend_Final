@@ -1,5 +1,5 @@
 ﻿import React, { useState, useRef } from 'react';
-import emailjs from '@emailjs/browser'; // Import thư viện
+import emailjs from '@emailjs/browser';
 import { Mail, Send, Loader } from 'lucide-react';
 
 export const ContactSection: React.FC = () => {
@@ -12,14 +12,14 @@ export const ContactSection: React.FC = () => {
 
         const SERVICE_ID = 'service_2dlf3ji';   
         const TEMPLATE_ID = 'template_fr3bznc'; 
-        const PUBLIC_KEY = '8Ty45m7SUWJYVnBlu';   
+        const PUBLIC_KEY = '8Ty45m7SUWJYVnBlu';    
 
         if (form.current) {
             emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
                 .then((result) => {
                     console.log(result.text);
                     alert("Message sent successfully!");
-                    form.current?.reset(); // Xóa trắng form sau khi gửi
+                    form.current?.reset(); 
                 }, (error) => {
                     console.log(error.text);
                     alert("Failed to send message. Please try again.");
@@ -31,18 +31,17 @@ export const ContactSection: React.FC = () => {
     };
 
     return (
-        <section id="contact" className="py-16 bg-orange-50">
+        <section className="w-full">
             <div className="container mx-auto px-4 max-w-2xl text-center">
                 <h2 className="text-3xl font-bold text-gray-800 mb-4">Get in touch</h2>
                 <p className="text-gray-600 mb-8">
-                    Have a question, suggestion, or just want to say hello? We'd love to hear from you!
+                    Have a question, or just want to say hello? We'd love to hear from you!
                 </p>
 
-                <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
                     <form ref={form} onSubmit={sendEmail} className="space-y-6 text-left">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                            {/* name="user_name" phải khớp với biến trong Template EmailJS */}
                             <input
                                 type="text"
                                 name="user_name"

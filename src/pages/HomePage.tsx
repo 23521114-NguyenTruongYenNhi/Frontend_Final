@@ -25,10 +25,8 @@ export const HomePage: React.FC = () => {
     const [hasSearched, setHasSearched] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
 
-    // Ref để cuộn xuống phần tìm kiếm
     const searchSectionRef = useRef<HTMLDivElement>(null);
 
-    // Load ingredients from localStorage on mount
     useEffect(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -43,12 +41,10 @@ export const HomePage: React.FC = () => {
         }
     }, []);
 
-    // Save ingredients to localStorage whenever they change
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(ingredients));
     }, [ingredients]);
 
-    // Auto-search when filters change (if already searched)
     useEffect(() => {
         if (hasSearched) {
             handleSearch();
@@ -113,7 +109,7 @@ export const HomePage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-            {/* Header */}
+            {/* Header - Fixed Height 80px */}
             <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 h-[80px]">
                 <div className="container mx-auto px-4 h-full flex items-center justify-between">
                     <Link to="/" className="flex items-center">
@@ -136,7 +132,6 @@ export const HomePage: React.FC = () => {
                             </Link>
                         </nav>
 
-                        {/* User Menu */}
                         {user && (
                             <>
                                 <Link
@@ -176,23 +171,27 @@ export const HomePage: React.FC = () => {
             </header>
 
             {/* Hero Section */}
-            <div className="relative h-[600px] w-full overflow-hidden">
+            <div className="relative h-[calc(100vh-80px)] w-full overflow-hidden">
                 <img 
                     src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?q=80&w=1172&auto=format&fit=crop" 
                     alt="Fresh Ingredients" 
                     className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/50" />
-                <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 pb-16">
+                
+                <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4 pb-20">
                     <span className="bg-[#FFB800] text-gray-900 px-6 py-2 rounded-full font-bold mb-6 text-sm md:text-base uppercase tracking-wide shadow-lg">
                         Smart Kitchen Companion
                     </span>
                     <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 leading-tight max-w-4xl">
                         Turn Your Ingredients Into Delicious Meals
                     </h1>
-                    <p className="text-lg md:text-xl text-gray-100 max-w-2xl mb-12 leading-relaxed">
+                    <p className="text-lg md:text-xl text-gray-100 max-w-2xl leading-relaxed">
                         Don't know what to cook? Simply tell us what ingredients you have in your fridge, and we'll find the perfect recipe for you.
                     </p>
+                </div>
+
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center z-20">
                     <button 
                         onClick={scrollToSearch}
                         className="group flex flex-col items-center gap-2 text-white hover:text-orange-300 transition-colors animate-bounce cursor-pointer"
@@ -204,10 +203,15 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-8"> 
+            <main className="container mx-auto px-4"> 
                 
                 {/* Search Section */}
-                <div ref={searchSectionRef} className="mb-8 scroll-mt-24"> 
+                <div 
+                    ref={searchSectionRef} 
+                    // FIX: Bỏ 'justify-center'. Dùng pt-12 để cố định vị trí bắt đầu.
+                    // min-h đảm bảo fit trang ban đầu. Khi content dài, nó sẽ tự dãn ra.
+                    className="scroll-mt-20 min-h-[calc(100vh-80px)] flex flex-col pt-12 pb-8"
+                > 
                     <div className="text-center mb-6"> 
                         <h2 className="text-3xl md:text-4xl font-bold font-sans text-gray-900 mb-3 pt-2">
                             What Ingredients Do You Have?
@@ -222,9 +226,8 @@ export const HomePage: React.FC = () => {
                         onClearAll={handleClearAll}
                     />
 
-                    {/* Search Button */}
                     {ingredients.length > 0 && (
-                        <div className="mt-6 text-center"> 
+                        <div className="mt-4 text-center"> 
                             <button
                                 onClick={handleSearch}
                                 disabled={isSearching}
@@ -234,77 +237,74 @@ export const HomePage: React.FC = () => {
                             </button>
                         </div>
                     )}
-                </div>
 
-                {/* Filters Panel */}
-                <div className="mb-6">
-                    <FiltersPanel filters={filters} onFilterChange={setFilters} />
-                </div>
-
-                {/* Search Results */}
-                {hasSearched && (
-                    <div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {recipes.length > 0
-                                    ? `Found ${recipes.length} recipe${recipes.length !== 1 ? 's' : ''}`
-                                    : 'No recipes found'}
-                            </h2>
-                        </div>
-                        <ResultsGrid
-                            recipes={recipes}
-                            onRecipeClick={handleRecipeClick}
-                            isSearching={isSearching}
-                        />
+                    <div className="mt-4 mb-4">
+                        <FiltersPanel filters={filters} onFilterChange={setFilters} />
                     </div>
-                )}
 
-                {/* Welcome Cards */}
-                {!hasSearched && ingredients.length === 0 && (
-                    <div className="text-center py-4"> 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                            {/* Card 1 */}
-                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-                                    <ChefHat className="w-5 h-5 text-orange-500" />
-                                </div>
-                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Smart Search</h4>
-                                <p className="text-sm text-gray-600 leading-relaxed px-2">
-                                    Enter what you have, show what you can make. No food waste!
-                                </p>
+                    {hasSearched && (
+                        <div>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-gray-800">
+                                    {recipes.length > 0
+                                        ? `Found ${recipes.length} recipe${recipes.length !== 1 ? 's' : ''}`
+                                        : 'No recipes found'}
+                                </h2>
                             </div>
+                            <ResultsGrid
+                                recipes={recipes}
+                                onRecipeClick={handleRecipeClick}
+                                isSearching={isSearching}
+                            />
+                        </div>
+                    )}
 
-                            {/* Card 2 */}
-                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-                                    <Filter className="w-5 h-5 text-orange-500" />
+                    {!hasSearched && ingredients.length === 0 && (
+                        <div className="text-center py-4"> 
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                                <div className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                                        <ChefHat className="w-6 h-6 text-orange-500" />
+                                    </div>
+                                    <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Smart Search</h4>
+                                    <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                        Enter what you have, show what you can make. No food waste!
+                                    </p>
                                 </div>
-                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Dietary Friendly</h4>
-                                <p className="text-sm text-gray-600 leading-relaxed px-2">
-                                    Vegetarian, Vegan, or Gluten-free? We cover every lifestyle.
-                                </p>
-                            </div>
-
-                            {/* Card 3 */}
-                            <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
-                                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-                                    <PlusCircle className="w-5 h-5 text-orange-500" />
+                                <div className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                                        <Filter className="w-6 h-6 text-orange-500" />
+                                    </div>
+                                    <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Dietary Friendly</h4>
+                                    <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                        Vegetarian, Vegan, or Gluten-free? We cover every lifestyle.
+                                    </p>
                                 </div>
-                                <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Community</h4>
-                                <p className="text-sm text-gray-600 leading-relaxed px-2">
-                                    Discover and share secret recipes with other home cooks.
-                                </p>
+                                <div className="p-5 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-full hover:shadow-md transition-all duration-300">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                                        <PlusCircle className="w-6 h-6 text-orange-500" />
+                                    </div>
+                                    <h4 className="font-sans font-bold text-lg text-gray-800 mb-2">Community</h4>
+                                    <p className="text-sm text-gray-600 leading-relaxed px-2">
+                                        Discover and share secret recipes with other home cooks.
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </main>
 
             {/* About Section */}
-            <AboutSection />
+            {/* FIX: Giữ pt-0 để nằm sát phần trên */}
+            <div id="about" className="scroll-mt-20 flex flex-col bg-white pt-0 pb-12">
+                <AboutSection />
+            </div>
 
             {/* Contact Section */}
-            <ContactSection />
+            <div id="contact" className="scroll-mt-20 flex flex-col bg-white pt-8 pb-12">
+                <ContactSection />
+            </div>
 
             {/* Footer */}
             <Footer />
