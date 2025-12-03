@@ -32,51 +32,51 @@ export const ContactSection: React.FC = () => {
 
     return (
         <section className="w-full">
-            {/* FIX: Tăng max-w-2xl lên max-w-4xl để khung rộng hơn (phóng to) */}
-            <div className="container mx-auto px-4 max-w-4xl text-center">
+            {/* Giảm max-w từ 4xl về 3xl cho gọn hơn */}
+            <div className="container mx-auto px-4 max-w-3xl text-center">
                 
-                {/* FIX: Tăng kích thước chữ */}
-                <h2 className="text-4xl font-bold text-gray-800 mb-2">Get in touch</h2>
+                {/* Giảm kích thước tiêu đề */}
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Get in touch</h2>
                 
-                <p className="text-gray-600 mb-8 text-lg">
+                <p className="text-gray-600 mb-6 text-base">
                     Have a question, or just want to say hello? We'd love to hear from you!
                 </p>
 
-                {/* FIX: Tăng padding p-6 lên p-10 để form thoáng và to hơn */}
-                <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-100">
-                    <form ref={form} onSubmit={sendEmail} className="space-y-6 text-left">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Giảm padding p-10 -> p-8 */}
+                <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                    <form ref={form} onSubmit={sendEmail} className="space-y-5 text-left">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
                                 <input
                                     type="text"
                                     name="user_name"
                                     required
-                                    // FIX: Tăng py-1.5 lên py-3 để ô input to hơn, font text-base
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-base"
+                                    // Giảm py-3 -> py-2.5, text-base -> text-sm
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none text-sm"
                                     placeholder="John Doe"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                                 <input
                                     type="email"
                                     name="user_email"
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-base"
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none text-sm"
                                     placeholder="john@example.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                             <textarea
                                 name="message"
                                 required
-                                rows={5} 
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none resize-none text-base"
+                                rows={4} 
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none resize-none text-sm"
                                 placeholder="Tell us what's on your mind..."
                             />
                         </div>
@@ -84,24 +84,24 @@ export const ContactSection: React.FC = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-4 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 text-lg shadow-md hover:shadow-lg"
+                            className="w-full py-3 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 text-base shadow-md hover:shadow-lg"
                         >
                             {loading ? (
                                 <>
-                                    <Loader className="w-6 h-6 animate-spin" /> Sending...
+                                    <Loader className="w-5 h-5 animate-spin" /> Sending...
                                 </>
                             ) : (
                                 <>
-                                    <Send className="w-6 h-6" /> Send Message
+                                    <Send className="w-5 h-5" /> Send Message
                                 </>
                             )}
                         </button>
                     </form>
                 </div>
 
-                <div className="mt-8">
-                    <p className="text-gray-600 mb-1 text-base">Or email us directly at:</p>
-                    <a href="mailto:mysteremeal.official@gmail.com" className="text-orange-500 font-bold hover:underline text-lg">
+                <div className="mt-6">
+                    <p className="text-gray-600 mb-1 text-sm">Or email us directly at:</p>
+                    <a href="mailto:mysteremeal.official@gmail.com" className="text-orange-500 font-bold hover:underline text-base">
                         mysteremeal.official@gmail.com
                     </a>
                 </div>
