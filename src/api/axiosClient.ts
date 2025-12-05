@@ -6,8 +6,7 @@ import axios from 'axios';
 // defaulting to local development port 5000.
 
 const API_BASE_URL = 'https://mystere-meal.onrender.com/api';
-const API_BASE_URL = `${baseUrl}/api`; 
-
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mystere-meal.onrender.com/api';
 const axiosClient = axios.create({
     baseURL: API_BASE_URL,
     headers: {

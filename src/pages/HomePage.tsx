@@ -160,7 +160,7 @@ export const HomePage: React.FC = () => {
                                 )}
                                 {/* END ADMIN LINK */}
                                 
-                                <span className="text-sm text-gray-600 hidden md:inline">Hello, <strong>{user.name}</strong></span>
+                                
                                 <Link
                                     to="/profile"
                                     className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"

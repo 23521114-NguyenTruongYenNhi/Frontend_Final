@@ -150,9 +150,34 @@ export const ingredientNutritionAPI = {
 };
 
 // User API 
-export const userAPI = {
-    // ...
-};
+
+    export const userAPI = {
+        getProfile: async (userId: string) => {
+            return apiRequest(`/users/${userId}`);
+        },
+
+        addFavorite: async (userId: string, recipeId: string) => {
+            return apiRequest(`/users/${userId}/favorites`, {
+                method: 'POST',
+                body: JSON.stringify({ recipeId }),
+            });
+        },
+
+        removeFavorite: async (userId: string, recipeId: string) => {
+            return apiRequest(`/users/${userId}/favorites/${recipeId}`, {
+                method: 'DELETE',
+            });
+        },
+
+        getFavorites: async (userId: string) => {
+            return apiRequest(`/users/${userId}/favorites`);
+        },
+
+        getCreatedRecipes: async (userId: string) => {
+            return apiRequest(`/users/${userId}/recipes`);
+        },
+    };
+
 
 // Admin API 
 // --- Admin API (Khối code hoàn chỉnh) ---
@@ -184,7 +209,41 @@ export const adminAPI = {
 };
 // Shopping List API 
 export const shoppingListAPI = {
-    // ...
+    getList: async () => {
+        return apiRequest('/shopping-list');
+    },
+
+    addItem: async (data: { name: string; quantity: number; unit: string; recipeId?: string }) => {
+        return apiRequest('/shopping-list/items', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    },
+
+    toggleItem: async (itemId: string) => {
+        return apiRequest(`/shopping-list/items/${itemId}/toggle`, {
+            method: 'PATCH',
+        });
+    },
+
+    deleteItem: async (itemId: string) => {
+        return apiRequest(`/shopping-list/items/${itemId}`, {
+            method: 'DELETE',
+        });
+    },
+
+    clearCompleted: async () => {
+        return apiRequest('/shopping-list/clear-completed', {
+            method: 'DELETE',
+        });
+    },
+
+    addMissingIngredients: async (recipeId: string) => {
+        return apiRequest('/shopping-list/add-from-recipe', {
+            method: 'POST',
+            body: JSON.stringify({ recipeId }),
+        });
+    },
 };
 
 export { API_BASE_URL };
