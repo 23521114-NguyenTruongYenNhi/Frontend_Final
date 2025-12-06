@@ -22,7 +22,7 @@ import {
 
 // --- Components ---
 
-// Modal thêm nguyên liệu thiếu (Giữ nguyên không đổi)
+// Missing Ingredients Modal
 interface MissingIngredientsModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -47,7 +47,7 @@ const MissingIngredientsModal: React.FC<MissingIngredientsModalProps> = ({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <ShoppingBag className="w-6 h-6" />
-                            <h3 className="text-xl font-bold">Nguyên liệu còn thiếu</h3>
+                            <h3 className="text-xl font-bold">Missing Ingredients</h3>
                         </div>
                         <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
                             <X className="w-5 h-5" />
@@ -57,7 +57,7 @@ const MissingIngredientsModal: React.FC<MissingIngredientsModalProps> = ({
 
                 <div className="p-6">
                     <p className="text-gray-700 mb-4">
-                        Bạn còn thiếu <strong>{missingIngredients.length}</strong> nguyên liệu. Bạn có muốn thêm vào danh sách đi chợ không?
+                        You are missing <strong>{missingIngredients.length}</strong> ingredients. Would you like to add them to your shopping list?
                     </p>
                     <div className="bg-gray-50 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
                         <ul className="space-y-2">
@@ -71,7 +71,7 @@ const MissingIngredientsModal: React.FC<MissingIngredientsModalProps> = ({
                     </div>
                     <div className="flex gap-3">
                         <button onClick={onClose} className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                            Hủy
+                            Cancel
                         </button>
                         <button
                             onClick={onAddToShoppingList}
@@ -81,12 +81,12 @@ const MissingIngredientsModal: React.FC<MissingIngredientsModalProps> = ({
                             {isLoading ? (
                                 <>
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    <span>Đang thêm...</span>
+                                    <span>Adding...</span>
                                 </>
                             ) : (
                                 <>
                                     <ShoppingBag className="w-5 h-5" />
-                                    <span>Thêm vào giỏ</span>
+                                    <span>Add to Cart</span>
                                 </>
                             )}
                         </button>
@@ -120,19 +120,19 @@ export const RecipeDetailPage: React.FC = () => {
                 if (data.comments && Array.isArray(data.comments)) {
                     setComments(data.comments.map((c: any) => ({
                         id: c._id,
-                        username: c.user?.name || 'Ẩn danh',
+                        username: c.user?.name || 'Anonymous',
                         text: c.text,
                         rating: c.rating,
                         createdAt: new Date(c.createdAt).toISOString().split('T')[0],
                     })));
                 }
             } catch (error) {
-                console.error('Không tải được công thức:', error);
+                console.error('Failed to load recipe:', error);
                 const foundRecipe = mockRecipes.find(r => r.id === id);
                 if (foundRecipe) {
                     setRecipe(foundRecipe);
                     setComments([
-                        { id: '1', username: 'Chef Mai', text: 'Công thức tuyệt vời!', rating: 5, createdAt: '2024-01-15' },
+                        { id: '1', username: 'Chef Mai', text: 'Great recipe!', rating: 5, createdAt: '2024-01-15' },
                     ]);
                 } else {
                     navigate('/');
@@ -171,16 +171,16 @@ export const RecipeDetailPage: React.FC = () => {
                     quantity: 1,
                     unit: 'item',
                 }).catch(err => {
-                    console.error(`Lỗi khi thêm ${ingredient}:`, err);
+                    console.error(`Error adding ${ingredient}:`, err);
                     return null;
                 });
             });
             await Promise.all(addPromises);
-            alert(`✓ Đã thêm thành công ${missingIngredients.length} món vào danh sách đi chợ!`);
+            alert(`✓ Successfully added ${missingIngredients.length} items to your shopping list!`);
             setShowModal(false);
         } catch (error) {
-            console.error('Lỗi thêm giỏ hàng:', error);
-            alert('Có lỗi xảy ra, vui lòng thử lại.');
+            console.error('Error adding to cart:', error);
+            alert('An error occurred. Please try again.');
         } finally {
             setIsAddingToList(false);
         }
@@ -207,13 +207,13 @@ export const RecipeDetailPage: React.FC = () => {
             setComment('');
             setRating(5);
         } catch (error) {
-            console.error('Lỗi gửi bình luận:', error);
-            alert('Không gửi được bình luận. Thử lại sau.');
+            console.error('Error sending comment:', error);
+            alert('Failed to send comment. Please try again later.');
         }
     };
 
     if (!recipe) {
-        return <div className="min-h-screen flex items-center justify-center">Đang tải...</div>;
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     }
 
     const completionPercent = recipe.ingredients.length > 0
@@ -235,27 +235,27 @@ export const RecipeDetailPage: React.FC = () => {
                         </Link>
                         {user ? (
                             <div className="flex items-center gap-4">
-                                <span className="text-sm text-gray-600">Xin chào, {user.name}</span>
-                                <Link to="/login" className="px-4 py-2 text-orange-600 hover:text-orange-700 font-medium">Đăng xuất</Link>
+                                <span className="text-sm text-gray-600">Hello, {user.name}</span>
+                                <Link to="/login" className="px-4 py-2 text-orange-600 hover:text-orange-700 font-medium">Log out</Link>
                             </div>
                         ) : (
-                            <Link to="/login" className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">Đăng nhập</Link>
+                            <Link to="/login" className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">Log in</Link>
                         )}
                     </div>
                 </div>
             </header>
 
             <main className="container mx-auto px-4 py-8">
-                {/* Nút quay lại */}
+                {/* Back Button */}
                 <button
                     onClick={() => navigate(-1)}
                     className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
-                    <span>Quay lại</span>
+                    <span>Back</span>
                 </button>
 
-                {/* Phần Header Món Ăn (Ảnh + Thông tin chung) */}
+                {/* Recipe Header (Image + Info) */}
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
                     <div className="relative h-96 bg-gradient-to-br from-orange-100 to-orange-200">
                         {recipe.image && (
@@ -276,18 +276,18 @@ export const RecipeDetailPage: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <Clock className="w-5 h-5" />
-                                    <span>{recipe.time} phút</span>
+                                    <span>{recipe.time} mins</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <ChefHat className="w-5 h-5" />
                                     <span>{recipe.difficulty}</span>
                                 </div>
 
-                                {/* 1. CẬP NHẬT: Thẻ Cuisine thành nút bấm */}
+                                {/* Cuisine Button */}
                                 <button
                                     onClick={() => navigate(`/?cuisine=${recipe.cuisine}`)}
                                     className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full hover:bg-orange-500 hover:text-white transition-colors cursor-pointer border border-transparent hover:border-orange-400"
-                                    title="Xem thêm món cùng loại"
+                                    title="View more similar recipes"
                                 >
                                     {recipe.cuisine}
                                 </button>
@@ -302,14 +302,14 @@ export const RecipeDetailPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Cột trái: Nguyên liệu & Dinh dưỡng */}
+                    {/* Left Column: Ingredients & Nutrition */}
                     <div className="lg:col-span-1 space-y-6">
-                        {/* Danh sách nguyên liệu */}
+                        {/* Ingredients List */}
                         <div className="bg-white rounded-xl shadow-md p-6">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Nguyên liệu</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Ingredients</h2>
                             <div className="mb-4">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm font-medium text-gray-600">Tiến độ</span>
+                                    <span className="text-sm font-medium text-gray-600">Progress</span>
                                     <span className="text-sm font-bold text-orange-600">{completionPercent}%</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -341,9 +341,9 @@ export const RecipeDetailPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Dinh dưỡng */}
+                        {/* Nutrition */}
                         <div className="bg-white rounded-xl shadow-md p-6">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Dinh dưỡng</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Nutrition</h2>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
                                     <Flame className="w-6 h-6 text-orange-500" />
@@ -365,11 +365,11 @@ export const RecipeDetailPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Cột phải: Hướng dẫn & Bình luận */}
+                    {/* Right Column: Instructions & Comments */}
                     <div className="lg:col-span-2 space-y-6">
-                        {/* Hướng dẫn nấu */}
+                        {/* Instructions */}
                         <div className="bg-white rounded-xl shadow-md p-6">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Cách làm</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Instructions</h2>
                             <div className="space-y-4">
                                 {recipe.steps.map((step, index) => (
                                     <div key={index} className="flex gap-4 group">
@@ -400,16 +400,16 @@ export const RecipeDetailPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Phần Bình luận */}
+                        {/* Comments */}
                         <div className="bg-white rounded-xl shadow-md p-6">
                             <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                                 <MessageSquare className="w-6 h-6" />
-                                Bình luận ({comments.length})
+                                Comments ({comments.length})
                             </h2>
                             {user ? (
                                 <form onSubmit={handleSubmitComment} className="mb-6 p-4 bg-gray-50 rounded-lg">
                                     <div className="mb-3">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Đánh giá của bạn</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Your Rating</label>
                                         <div className="flex gap-1">
                                             {[1, 2, 3, 4, 5].map((star) => (
                                                 <button key={star} type="button" onClick={() => setRating(star)} className="transition-transform hover:scale-110">
@@ -421,18 +421,18 @@ export const RecipeDetailPage: React.FC = () => {
                                     <textarea
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
-                                        placeholder="Chia sẻ cảm nghĩ về món ăn này..."
+                                        placeholder="Share your thoughts on this recipe..."
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-200 focus:border-orange-500 outline-none resize-none"
                                         rows={3}
                                     />
                                     <button type="submit" className="mt-3 px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
-                                        <Send className="w-4 h-4" /> Gửi
+                                        <Send className="w-4 h-4" /> Send
                                     </button>
                                 </form>
                             ) : (
                                 <div className="mb-6 p-4 bg-orange-50 rounded-lg text-center">
-                                    <p className="text-gray-700 mb-2">Vui lòng đăng nhập để bình luận</p>
-                                    <Link to="/login" className="inline-block px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">Đăng nhập ngay</Link>
+                                    <p className="text-gray-700 mb-2">Please log in to leave a comment</p>
+                                    <Link to="/login" className="inline-block px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">Log in now</Link>
                                 </div>
                             )}
                             <div className="space-y-4">
@@ -458,7 +458,7 @@ export const RecipeDetailPage: React.FC = () => {
                 </div>
             </main>
 
-            {/* Widget nổi: Thông báo thiếu nguyên liệu */}
+            {/* Floating Widget: Missing Ingredients Notification */}
             {user && hasMissingItems && (
                 <div className="fixed bottom-6 right-6 z-40 animate-bounce-subtle">
                     <div className="bg-white rounded-2xl shadow-2xl border border-orange-100 p-4 flex items-center gap-4 max-w-sm transition-all duration-300">
@@ -466,14 +466,14 @@ export const RecipeDetailPage: React.FC = () => {
                             <ShoppingBag className="w-6 h-6 text-orange-600" />
                         </div>
                         <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-600">Bạn đang thiếu</p>
-                            <p className="text-lg font-bold text-gray-800">{missingIngredientsList.length} món</p>
+                            <p className="text-sm font-medium text-gray-600">You are missing</p>
+                            <p className="text-lg font-bold text-gray-800">{missingIngredientsList.length} items</p>
                         </div>
                         <button onClick={() => setShowModal(true)} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-lg flex items-center gap-2">
-                            <span>Thêm</span>
+                            <span>Add</span>
                             <ArrowLeft className="w-4 h-4 rotate-180" />
                         </button>
-                        <button onClick={() => { const allIndices = new Set(recipe.ingredients.map((_, i) => i)); setCheckedIngredients(allIndices); }} className="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-300 rounded-full p-1 text-gray-500" title="Tôi có đủ rồi">
+                        <button onClick={() => { const allIndices = new Set(recipe.ingredients.map((_, i) => i)); setCheckedIngredients(allIndices); }} className="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-300 rounded-full p-1 text-gray-500" title="I have enough">
                             <X className="w-3 h-3" />
                         </button>
                     </div>

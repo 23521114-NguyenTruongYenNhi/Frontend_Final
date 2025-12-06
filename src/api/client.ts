@@ -122,38 +122,22 @@ export const recipeAPI = {
     },
 };
 
-// --- Ingredient Nutrition API (FIXED) ---
 export const ingredientNutritionAPI = {
     calculateRecipeNutrition: async (
         ingredients: IngredientNutritionPayload[]
     ) => {
-        try {
-            // Try calling the real API
-            const result = await apiRequest('/ingredients/nutrition/calculate-recipe', {
-                method: 'POST',
-                body: JSON.stringify({ ingredients }),
-            });
+        // Log the payload to verify data being sent
+        console.log("Calling Real API with data:", ingredients);
 
-            return result;
+        // Direct API call without try/catch block
+        // This ensures any network or server error is thrown directly
+        const result = await apiRequest('/ingredients/nutrition/calculate-recipe', {
+            method: 'POST',
+            body: JSON.stringify({ ingredients }),
+        });
 
-        } catch (error) {
-            // FALLBACK: If API fails, use local mock calculation
-            console.warn("[MOCK NUTRITION] Real API failed. Using local mock calculation.", error);
-
-            // Adapt data structure for the mock utility function
-            // The utility expects { ingredients: [...] } similar to a Recipe object
-            const mockRecipeObject: any = {
-                ingredients: ingredients
-            };
-
-            // Perform calculation using the imported utility
-            const mockResult = calculateMockNutrition(mockRecipeObject);
-
-            // Return in the format expected by AddRecipePage
-            return {
-                totalNutrition: mockResult
-            };
-        }
+        console.log("Real API Result:", result);
+        return result;
     },
 };
 
