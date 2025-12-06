@@ -1,6 +1,6 @@
 ﻿// File: src/pages/HomePage.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SearchBar } from '../components/SearchBar';
 import { TagList } from '../components/TagList';
@@ -12,15 +12,17 @@ import { Footer } from '../components/Footer';
 import { Recipe, RecipeFilters } from '../types/recipe';
 import { searchRecipes } from '../data/mockRecipes';
 import { recipeAPI } from '../api/client';
-// Thêm Shield/User icon cho Admin
-import { ChefHat, LogOut, User, ShoppingBag, PlusCircle, Filter, ChevronDown, Shield } from 'lucide-react';
+// Import thêm ShieldCheck cho Admin
+import { ChefHat, LogOut, User, ShoppingBag, PlusCircle, Filter, ChevronDown, ShieldCheck } from 'lucide-react';
 import { Logo } from '../components/Logo';
 
 const STORAGE_KEY = 'mystere-meal-ingredients';
 
 export const HomePage: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { user, logout } = useAuth();
+
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [filters, setFilters] = useState<RecipeFilters>({});
     const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -29,7 +31,30 @@ export const HomePage: React.FC = () => {
 
     const searchSectionRef = useRef<HTMLDivElement>(null);
 
-    // --- Original Effects and Handlers (Giữ nguyên) ---
+    // --- Effect: Xử lý URL Params (Cuisine Filter) ---
+    useEffect(() => {
+        const cuisineParam = searchParams.get('cuisine');
+        if (cuisineParam) {
+            setFilters(prev => ({ ...prev, cuisine: cuisineParam }));
+            setHasSearched(true);
+            const fetchByCuisine = async () => {
+                setIsSearching(true);
+                try {
+                    const data: any = await recipeAPI.search({ cuisine: cuisineParam });
+                    setRecipes(data);
+                } catch (error) {
+                    console.error('Search by cuisine failed:', error);
+                } finally {
+                    setIsSearching(false);
+                    setTimeout(() => {
+                        searchSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                }
+            };
+            fetchByCuisine();
+        }
+    }, [searchParams]);
+
     useEffect(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -49,8 +74,7 @@ export const HomePage: React.FC = () => {
     }, [ingredients]);
 
     useEffect(() => {
-        // Chỉ tìm kiếm lại khi filters thay đổi VÀ đã có lần tìm kiếm trước đó
-        if (hasSearched) {
+        if (hasSearched && !searchParams.get('cuisine')) {
             handleSearch();
         }
     }, [filters]);
@@ -70,12 +94,12 @@ export const HomePage: React.FC = () => {
         setFilters({});
         setRecipes([]);
         setHasSearched(false);
+        navigate('/');
     };
 
     const handleSearch = async () => {
         setIsSearching(true);
         setHasSearched(true);
-
         try {
             const data: any = await recipeAPI.search({
                 ingredients: ingredients,
@@ -88,11 +112,9 @@ export const HomePage: React.FC = () => {
                 isVegan: filters.isVegan,
                 isGlutenFree: filters.isGlutenFree,
             });
-
             setRecipes(data);
         } catch (error) {
             console.error('Search failed:', error);
-            // Fallback to mock data on API failure
             const results = searchRecipes(ingredients, filters);
             setRecipes(results);
         } finally {
@@ -117,7 +139,7 @@ export const HomePage: React.FC = () => {
             {/* Header */}
             <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 h-[80px]">
                 <div className="container mx-auto px-4 h-full flex items-center justify-between">
-                    <Link to="/" className="flex items-center">
+                    <Link to="/" onClick={() => handleClearAll()} className="flex items-center">
                         <Logo />
                     </Link>
                     <div className="flex items-center gap-6">
@@ -148,26 +170,28 @@ export const HomePage: React.FC = () => {
                                     Shopping List
                                 </Link>
 
-                                {/* FIXED: ADMIN DASHBOARD LINK (ĐÃ THÊM) */}
-                                {user.isAdmin && (
-                                    <Link
-                                        to="/admin"
-                                        className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-700 transition-colors font-bold border border-purple-200 rounded-lg"
-                                    >
-                                        <Shield className="w-4 h-4" />
-                                        Admin
-                                    </Link>
-                                )}
-                                {/* END ADMIN LINK */}
-                                
-                                
+                                {/* --- NÚT PROFILE / ADMIN "BIẾN HÌNH" --- */}
                                 <Link
-                                    to="/profile"
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                                    to={user.isAdmin ? "/admin" : "/profile"}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${user.isAdmin
+                                            ? 'bg-gray-800 text-white hover:bg-gray-900 shadow-md border border-gray-700' // Style cho Admin (Ngầu hơn)
+                                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100' // Style cho User thường
+                                        }`}
                                 >
-                                    <User className="w-4 h-4" />
-                                    Profile
+                                    {user.isAdmin ? (
+                                        // Icon Admin: Cái khiên có dấu tích
+                                        <ShieldCheck className="w-4 h-4 text-yellow-400" />
+                                    ) : (
+                                        // Icon User thường
+                                        <User className="w-4 h-4" />
+                                    )}
+
+                                    <span className={`font-medium ${user.isAdmin ? 'tracking-wide' : ''}`}>
+                                        {user.isAdmin ? 'Admin Portal' : 'Profile'}
+                                    </span>
                                 </Link>
+                                {/* --------------------------------------- */}
+
                                 <button
                                     onClick={handleLogout}
                                     className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 font-medium transition-colors"
@@ -189,9 +213,9 @@ export const HomePage: React.FC = () => {
                 </div>
             </header>
 
-            {/* Hero Section (ĐÃ SỬA LỖI CÚ PHÁP) */}
+            {/* Hero Section */}
             <div className="relative h-[calc(100vh-80px)] w-full overflow-hidden">
-                <img // Thêm thẻ img
+                <img
                     src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?q=80&w=1172&auto=format&fit=crop"
                     alt="Fresh Ingredients"
                     className="absolute inset-0 w-full h-full object-cover"
@@ -221,7 +245,7 @@ export const HomePage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Main Content (Giữ nguyên) */}
+            {/* Main Content */}
             <main className="container mx-auto px-4">
                 {/* Search Section */}
                 <div
@@ -260,6 +284,18 @@ export const HomePage: React.FC = () => {
 
                     {hasSearched && (
                         <div>
+                            {searchParams.get('cuisine') && (
+                                <div className="mb-4 text-center">
+                                    <span className="inline-block px-4 py-2 bg-orange-100 text-orange-800 rounded-full font-medium">
+                                        Showing results for: <strong>{searchParams.get('cuisine')}</strong> cuisine
+                                        <button
+                                            onClick={handleClearAll}
+                                            className="ml-2 text-orange-600 hover:text-orange-900 font-bold"
+                                        >✕</button>
+                                    </span>
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     {recipes.length > 0
@@ -277,9 +313,7 @@ export const HomePage: React.FC = () => {
 
                     {!hasSearched && ingredients.length === 0 && (
                         <div className="text-center py-0 mt-8">
-                            {/* FIX: Thu nhỏ Container xuống max-w-3xl */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                                {/* FIX: Thu nhỏ Card (p-4), Icon (w-10), Chữ (text-base, text-xs) */}
                                 <div className="aspect-square p-4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:shadow-md transition-all duration-300">
                                     <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-3">
                                         <ChefHat className="w-5 h-5 text-orange-500" />
@@ -313,17 +347,17 @@ export const HomePage: React.FC = () => {
                 </div>
             </main>
 
-            {/* About Section (Giữ nguyên) */}
+            {/* About Section */}
             <div id="about" className="scroll-mt-20 flex flex-col bg-white pt-0 pb-12">
                 <AboutSection />
             </div>
 
-            {/* Contact Section (Giữ nguyên) */}
+            {/* Contact Section */}
             <div id="contact" className="scroll-mt-20 min-h-[calc(100vh-80px)] flex flex-col justify-center bg-white py-12">
                 <ContactSection />
             </div>
 
-            {/* Footer (Giữ nguyên) */}
+            {/* Footer */}
             <Footer />
         </div>
     );

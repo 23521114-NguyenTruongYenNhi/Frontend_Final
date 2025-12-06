@@ -1,10 +1,18 @@
 ﻿// File: src/api/client.ts
 // API Client for Mystère Meal Backend
-// Centralized API configuration and request handling
+
+// 1. IMPORT THE MOCK CALCULATION FUNCTION
+import { calculateRecipeNutrition as calculateMockNutrition } from '../utils/nutritionUtils';
 
 const RAW_BASE_URL = import.meta.env.VITE_API_URL || 'https://mystere-meal.onrender.com/api';
-const API_BASE_URL = RAW_BASE_URL.replace(/\/$/, ''); 
+const API_BASE_URL = RAW_BASE_URL.replace(/\/$/, '');
 
+// 2. DEFINE THE MISSING TYPE INTERFACE
+export interface IngredientNutritionPayload {
+    name: string;
+    quantity: number;
+    unit: string;
+}
 
 // Helper to get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -52,7 +60,6 @@ async function apiRequest<T>(
 
         return await response.json();
     } catch (error) {
-        // Enhanced error handling
         if (error instanceof TypeError && (error as TypeError).message.includes('fetch')) {
             throw new Error('Cannot connect to server. Please make sure the backend is running.');
         }
@@ -85,13 +92,13 @@ export const recipeAPI = {
     search: async (params: any) => {
         const queryParams = new URLSearchParams();
         for (const key in params) {
-             if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-                 if (Array.isArray(params[key])) {
-                     if (params[key].length > 0) queryParams.append(key, params[key].join(','));
-                 } else {
-                     queryParams.append(key, params[key].toString());
-                 }
-             }
+            if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+                if (Array.isArray(params[key])) {
+                    if (params[key].length > 0) queryParams.append(key, params[key].join(','));
+                } else {
+                    queryParams.append(key, params[key].toString());
+                }
+            }
         }
         return apiRequest(`/recipes/search?${queryParams.toString()}`);
     },
@@ -115,33 +122,34 @@ export const recipeAPI = {
     },
 };
 
-// --- Ingredient Nutrition API (ĐÃ SỬA VỚI LOGIC FAILOVER) ---
+// --- Ingredient Nutrition API (FIXED) ---
 export const ingredientNutritionAPI = {
     calculateRecipeNutrition: async (
         ingredients: IngredientNutritionPayload[]
     ) => {
         try {
-            // 1. THỬ GỌI API THẬT
+            // Try calling the real API
             const result = await apiRequest('/ingredients/nutrition/calculate-recipe', {
                 method: 'POST',
                 body: JSON.stringify({ ingredients }),
             });
-            
-            // Trả về kết quả từ Backend
-            return result; 
+
+            return result;
 
         } catch (error) {
-            // 2. FALLBACK: Nếu API thật thất bại (lỗi kết nối, 404,...)
-            console.warn("[MOCK NUTRITION] Real API failed. Falling back to mock data.", error);
-            
-            // Cấu trúc dữ liệu mock cần thiết cho hàm calculateMockNutrition
-            const mockRecipeObject = { ingredients: ingredients }; 
+            // FALLBACK: If API fails, use local mock calculation
+            console.warn("[MOCK NUTRITION] Real API failed. Using local mock calculation.", error);
 
-            // Gọi hàm tính toán mock. 
-            // CHÚ Ý: Hàm mock này phải được cấu hình để trả về object: { calories: X, protein: Y, ... }
-            const mockResult = calculateMockNutrition(mockRecipeObject); 
-            
-            // Trả về dữ liệu mock theo cấu trúc mà Frontend (AddRecipePage) mong đợi: { totalNutrition: {...} }
+            // Adapt data structure for the mock utility function
+            // The utility expects { ingredients: [...] } similar to a Recipe object
+            const mockRecipeObject: any = {
+                ingredients: ingredients
+            };
+
+            // Perform calculation using the imported utility
+            const mockResult = calculateMockNutrition(mockRecipeObject);
+
+            // Return in the format expected by AddRecipePage
             return {
                 totalNutrition: mockResult
             };
@@ -150,63 +158,47 @@ export const ingredientNutritionAPI = {
 };
 
 // User API 
+export const userAPI = {
+    getProfile: async (userId: string) => {
+        return apiRequest(`/users/${userId}`);
+    },
 
-    export const userAPI = {
-        getProfile: async (userId: string) => {
-            return apiRequest(`/users/${userId}`);
-        },
+    addFavorite: async (userId: string, recipeId: string) => {
+        return apiRequest(`/users/${userId}/favorites`, {
+            method: 'POST',
+            body: JSON.stringify({ recipeId }),
+        });
+    },
 
-        addFavorite: async (userId: string, recipeId: string) => {
-            return apiRequest(`/users/${userId}/favorites`, {
-                method: 'POST',
-                body: JSON.stringify({ recipeId }),
-            });
-        },
+    removeFavorite: async (userId: string, recipeId: string) => {
+        return apiRequest(`/users/${userId}/favorites/${recipeId}`, {
+            method: 'DELETE',
+        });
+    },
 
-        removeFavorite: async (userId: string, recipeId: string) => {
-            return apiRequest(`/users/${userId}/favorites/${recipeId}`, {
-                method: 'DELETE',
-            });
-        },
+    getFavorites: async (userId: string) => {
+        return apiRequest(`/users/${userId}/favorites`);
+    },
 
-        getFavorites: async (userId: string) => {
-            return apiRequest(`/users/${userId}/favorites`);
-        },
-
-        getCreatedRecipes: async (userId: string) => {
-            return apiRequest(`/users/${userId}/recipes`);
-        },
-    };
-
+    getCreatedRecipes: async (userId: string) => {
+        return apiRequest(`/users/${userId}/recipes`);
+    },
+};
 
 // Admin API 
-// --- Admin API (Khối code hoàn chỉnh) ---
 export const adminAPI = {
-    // GET /api/admin/recipes
     getRecipes: async (status?: string) => {
-        // Xử lý query string cho trạng thái
         const query = status && status !== 'all' ? `?status=${status}` : '';
         return apiRequest(`/admin/recipes${query}`);
     },
-
-    // GET /api/admin/users
     getUsers: async () => apiRequest('/admin/users'),
-
-    // POST /api/admin/recipes/:id/approve
     approveRecipe: async (id: string) => apiRequest(`/admin/recipes/${id}/approve`, { method: 'POST' }),
-
-    // POST /api/admin/recipes/:id/reject
     rejectRecipe: async (id: string) => apiRequest(`/admin/recipes/${id}/reject`, { method: 'POST' }),
-
-    // DELETE /api/admin/recipes/:id
     deleteRecipe: async (id: string) => apiRequest(`/admin/recipes/${id}`, { method: 'DELETE' }),
-
-    // POST /api/admin/users/:id/lock
     lockUser: async (id: string) => apiRequest(`/admin/users/${id}/lock`, { method: 'POST' }),
-
-    // POST /api/admin/users/:id/unlock
     unlockUser: async (id: string) => apiRequest(`/admin/users/${id}/unlock`, { method: 'POST' }),
 };
+
 // Shopping List API 
 export const shoppingListAPI = {
     getList: async () => {
