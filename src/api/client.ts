@@ -4,7 +4,7 @@
 // 1. IMPORT THE MOCK CALCULATION FUNCTION
 import { calculateRecipeNutrition as calculateMockNutrition } from '../utils/nutritionUtils';
 
-const RAW_BASE_URL = import.meta.env.VITE_API_URL || 'https://mystere-meal.onrender.com/api';
+const RAW_BASE_URL = import.meta.env.VITE_API_URL || 'https://myst-re-meal-1.onrender.com/api';
 const API_BASE_URL = RAW_BASE_URL.replace(/\/$/, '');
 
 // 2. DEFINE THE MISSING TYPE INTERFACE
